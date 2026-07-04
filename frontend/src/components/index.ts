@@ -17,3 +17,5 @@ export { AvatarPicker } from './AvatarPicker';
 export { Toast } from './Toast';
 
 export { ProgressStepper } from './ProgressStepper';
+
+export { OfflineBanner } from './OfflineBanner';

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Animated } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
@@ -7,6 +7,8 @@ import { Card, Badge, Button } from '../../components';
 import type { LibraryScreenProps } from '../../navigation/types';
 import { getDiseaseLibraryEntry, getCategoryDisplayName } from '../../lib/diseaseLibrary';
 import { getSymptomById } from '../../lib/symptomEngine';
+import { getCareGuidesByDisease } from '../../lib/careGuidance';
+import { logEvent } from '../../lib/analytics';
 
 type AccordionSection = 'overview' | 'symptoms' | 'causes' | 'treatment' | 'prevention' | 'seekingCare' | 'faq';
 
@@ -75,6 +77,10 @@ export function DiseaseDetailScreen({ navigation, route }: LibraryScreenProps<'D
 
   const severity = severityConfig[disease.severity];
   const resolvedSymptoms = disease.symptoms.map((sid) => getSymptomById(sid)).filter(Boolean);
+
+  useEffect(() => {
+    logEvent('disease_viewed', { diseaseId: disease.id, diseaseName: disease.name }).catch(() => {});
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
@@ -223,6 +229,55 @@ export function DiseaseDetailScreen({ navigation, route }: LibraryScreenProps<'D
               ))}
             </AccordionCard>
           )}
+
+          {/* Related Care Guide */}
+          {(() => {
+            const guides = getCareGuidesByDisease(disease.id);
+            if (guides.length === 0) return null;
+            const tabNav = navigation.getParent();
+            return (
+              <View style={{ marginTop: spacing.sm }}>
+                <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 16, color: colors.textPrimary, marginBottom: spacing.sm }}>
+                  Related Care Guide
+                </Text>
+                {guides.map((guide) => (
+                  <Card
+                    key={guide.id}
+                    onPress={() =>
+                      tabNav?.navigate('HomeTab', {
+                        screen: 'CareGuidanceDetail',
+                        params: { guideId: guide.id },
+                      } as any)
+                    }
+                    style={{ marginBottom: spacing.xs, flexDirection: 'row', alignItems: 'center' }}
+                  >
+                    <View
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: radii.md,
+                        backgroundColor: colors.surfaceStrong,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginRight: spacing.sm,
+                      }}
+                    >
+                      <Ionicons name="document-text-outline" size={20} color={colors.iconActive} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontFamily: 'Inter_500Medium', fontSize: 14, color: colors.textPrimary }}>
+                        {guide.title}
+                      </Text>
+                      <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 12, color: colors.textTertiary }}>
+                        {guide.steps.length} steps · ~{guide.estimatedMinutes} min
+                      </Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+                  </Card>
+                ))}
+              </View>
+            );
+          })()}
         </View>
       </ScrollView>
     </SafeAreaView>

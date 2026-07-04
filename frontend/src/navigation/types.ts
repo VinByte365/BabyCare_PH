@@ -36,6 +36,9 @@ export type HomeStackParamList = {
   Home: undefined;
   Notifications: undefined;
   EmergencyGuide: undefined;
+  EmergencyAlert: undefined;
+  CareGuidance: undefined;
+  CareGuidanceDetail: { guideId: string };
 };
 
 // ── Checker Stack ──────────────────────────────────────
@@ -93,6 +96,9 @@ export type CheckerScreenProps<T extends keyof CheckerStackParamList> =
 
 export type LibraryScreenProps<T extends keyof LibraryStackParamList> =
   NativeStackScreenProps<LibraryStackParamList, T>;
+
+export type CommunityScreenProps<T extends keyof CommunityStackParamList> =
+  NativeStackScreenProps<CommunityStackParamList, T>;
 
 export type ProfileScreenProps<T extends keyof ProfileStackParamList> =
   NativeStackScreenProps<ProfileStackParamList, T>;

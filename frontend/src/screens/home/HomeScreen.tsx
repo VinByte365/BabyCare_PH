@@ -14,6 +14,7 @@ import type { HomeScreenProps, MainTabParamList } from '../../navigation/types';
 const quickActions = [
   { id: 'checker', label: 'Symptom Checker', icon: 'medkit-outline' as const },
   { id: 'library', label: 'Disease Library', icon: 'library-outline' as const },
+  { id: 'guidance', label: 'Care Guidance', icon: 'document-text-outline' as const },
   { id: 'emergency', label: 'Emergency Guide', icon: 'warning-outline' as const },
   { id: 'community', label: 'Community Forum', icon: 'people-outline' as const },
 ];
@@ -108,6 +109,7 @@ export function HomeScreen({ navigation }: HomeScreenProps<'Home'>) {
                 switch (action.id) {
                   case 'checker': tabNavigation?.navigate('CheckerTab'); break;
                   case 'library': tabNavigation?.navigate('LibraryTab'); break;
+                  case 'guidance': navigation.navigate('CareGuidance'); break;
                   case 'community': tabNavigation?.navigate('CommunityTab'); break;
                   case 'emergency': navigation.navigate('EmergencyGuide'); break;
                 }

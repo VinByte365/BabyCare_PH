@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, ActivityIndicator, AppState } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -23,6 +23,8 @@ import { RootNavigator } from './src/navigation/RootNavigator';
 import { useAuthStore } from './src/stores/authStore';
 import { useThemeStore } from './src/stores/themeStore';
 import { lightColors } from './src/theme/colors';
+import { flushAnalytics, startAnalyticsSession } from './src/lib/analytics';
+import { useNetworkStore } from './src/lib/networkStore';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -30,6 +32,7 @@ export default function App() {
   const loadStoredAuth = useAuthStore((s) => s.loadStoredAuth);
   const isAuthLoading = useAuthStore((s) => s.isLoading);
   const checkReduceMotion = useThemeStore((s) => s.checkReduceMotion);
+  const initializeNetwork = useNetworkStore((s) => s.initialize);
   const [fontLoadTimedOut, setFontLoadTimedOut] = useState(false);
 
   const [fontsLoaded, fontError] = useFonts({
@@ -43,7 +46,32 @@ export default function App() {
   useEffect(() => {
     loadStoredAuth();
     checkReduceMotion();
-  }, [checkReduceMotion, loadStoredAuth]);
+    startAnalyticsSession().catch(() => {});
+    const unsubNet = initializeNetwork();
+    return () => {
+      unsubNet();
+    };
+  }, [checkReduceMotion, initializeNetwork, loadStoredAuth]);
+
+  const flushTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    flushTimerRef.current = setInterval(() => {
+      flushAnalytics().catch(() => {});
+    }, 300000); // flush every 5 minutes
+    return () => {
+      if (flushTimerRef.current) clearInterval(flushTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'background' || nextState === 'inactive') {
+        flushAnalytics().catch(() => {});
+      }
+    });
+    return () => sub.remove();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => setFontLoadTimedOut(true), 5000);

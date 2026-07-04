@@ -4,19 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { EmptyState } from '../../components';
 
-export function CommunityFeedScreen() {
-  const { theme } = useTheme();
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <EmptyState
-        icon={<Ionicons name="people-outline" size={64} color={theme.colors.iconActive} />}
-        title="Community"
-        message="Connect with other parents, ask questions, and get guidance from verified health professionals."
-      />
-    </SafeAreaView>
-  );
-}
-
 export function ProfileOverviewScreen() {
   const { theme } = useTheme();
   return (
@@ -38,19 +25,6 @@ export function NotificationsScreen() {
         icon={<Ionicons name="notifications-outline" size={64} color={theme.colors.iconActive} />}
         title="Notifications"
         message="Your medication reminders, vaccination schedules, and emergency alerts will appear here."
-      />
-    </SafeAreaView>
-  );
-}
-
-export function EmergencyGuideScreen() {
-  const { theme } = useTheme();
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <EmptyState
-        icon={<Ionicons name="alert-circle-outline" size={64} color={theme.colors.danger} />}
-        title="Emergency Guide"
-        message="Know the warning signs and emergency levels. Find nearest hospitals and emergency hotlines."
       />
     </SafeAreaView>
   );

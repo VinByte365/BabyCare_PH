@@ -127,6 +127,14 @@ export function CheckerResultScreen({ navigation, route }: CheckerScreenProps<'C
     setResults(r);
     setIsEmergency(e);
 
+    if (e) {
+      // Auto-show emergency alert after a brief delay
+      const timer = setTimeout(() => {
+        navigation.getParent()?.getParent()?.navigate('HomeTab', { screen: 'EmergencyAlert' });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+
     Animated.parallel([
       Animated.timing(opacityAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
       Animated.timing(slideAnim, { toValue: 0, duration: 500, useNativeDriver: true }),
@@ -135,6 +143,10 @@ export function CheckerResultScreen({ navigation, route }: CheckerScreenProps<'C
 
   const handleBackToHome = () => {
     navigation.getParent()?.getParent()?.navigate('HomeTab');
+  };
+
+  const handleEmergencyAlert = () => {
+    navigation.getParent()?.getParent()?.navigate('HomeTab', { screen: 'EmergencyAlert' });
   };
 
   return (
@@ -152,6 +164,14 @@ export function CheckerResultScreen({ navigation, route }: CheckerScreenProps<'C
             <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 13, color: colors.textSecondary, marginTop: spacing.xs, marginLeft: 36 }}>
               Some of the matched conditions require urgent medical attention.
             </Text>
+            <View style={{ marginLeft: 36, marginTop: spacing.sm }}>
+              <Button
+                title="View Emergency Alert"
+                onPress={handleEmergencyAlert}
+                variant="danger"
+                size="sm"
+              />
+            </View>
           </View>
         )}
 

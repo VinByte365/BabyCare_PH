@@ -1,9 +1,10 @@
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
+import { OfflineBanner } from '../components/OfflineBanner';
 
 import type {
   MainTabParamList,
@@ -15,13 +16,18 @@ import type {
 } from './types';
 
 import { HomeScreen } from '../screens/home/HomeScreen';
+import { CareGuidanceScreen } from '../screens/home/CareGuidanceScreen';
+import { CareGuidanceDetailScreen } from '../screens/home/CareGuidanceDetailScreen';
+import { EmergencyGuideScreen } from '../screens/home/EmergencyGuideScreen';
+import { EmergencyAlertScreen } from '../screens/home/EmergencyAlertScreen';
 import { LibrarySearchScreen } from '../screens/library/LibrarySearchScreen';
 import { LibraryCategoryScreen } from '../screens/library/LibraryCategoryScreen';
 import { DiseaseDetailScreen } from '../screens/library/DiseaseDetailScreen';
+import { CommunityFeedScreen } from '../screens/community/CommunityFeedScreen';
+import { CommunityPostScreen } from '../screens/community/CommunityPostScreen';
+import { CreatePostScreen } from '../screens/community/CreatePostScreen';
 import {
-  CommunityFeedScreen,
   NotificationsScreen,
-  EmergencyGuideScreen,
 } from '../screens/placeholders/PlaceholderScreens';
 
 import { CheckerIntroScreen } from '../screens/checker/CheckerIntroScreen';
@@ -46,6 +52,9 @@ function HomeStackNavigator() {
       <HomeStack.Screen name="Home" component={HomeScreen} />
       <HomeStack.Screen name="Notifications" component={NotificationsScreen} />
       <HomeStack.Screen name="EmergencyGuide" component={EmergencyGuideScreen} />
+      <HomeStack.Screen name="EmergencyAlert" component={EmergencyAlertScreen} />
+      <HomeStack.Screen name="CareGuidance" component={CareGuidanceScreen} />
+      <HomeStack.Screen name="CareGuidanceDetail" component={CareGuidanceDetailScreen} />
     </HomeStack.Navigator>
   );
 }
@@ -75,6 +84,8 @@ function CommunityStackNavigator() {
   return (
     <CommunityStack.Navigator screenOptions={{ headerShown: false }}>
       <CommunityStack.Screen name="CommunityFeed" component={CommunityFeedScreen} />
+      <CommunityStack.Screen name="CommunityPost" component={CommunityPostScreen} />
+      <CommunityStack.Screen name="CreatePost" component={CreatePostScreen} />
     </CommunityStack.Navigator>
   );
 }
@@ -114,7 +125,9 @@ export function MainTabNavigator() {
   const { colors } = theme;
 
   return (
-    <Tab.Navigator
+    <View style={{ flex: 1 }}>
+      <OfflineBanner />
+      <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.tabBarActive,
@@ -185,5 +198,6 @@ export function MainTabNavigator() {
         }}
       />
     </Tab.Navigator>
+    </View>
   );
 }
