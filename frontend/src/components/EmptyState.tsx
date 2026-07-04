@@ -1,12 +1,5 @@
-/**
- * BabyGuide PH — EmptyState Component
- *
- * Friendly empty-state placeholder with icon/illustration, title, and body.
- * Used for empty feeds, no search results, etc.
- */
-
 import React from 'react';
-import { View, Text, StyleSheet, type ViewStyle, type StyleProp } from 'react-native';
+import { View, Text, type ViewStyle, type StyleProp } from 'react-native';
 import { useTheme } from '../theme';
 import { Button } from './Button';
 
@@ -28,65 +21,43 @@ export function EmptyState({
   style,
 }: EmptyStateProps) {
   const { theme } = useTheme();
-  const { colors, spacing, typography: t } = theme;
+  const { colors, spacing } = theme;
 
   return (
-    <View style={[styles.container, { paddingHorizontal: spacing.xxl }, style]}>
-      {icon && <View style={[styles.iconWrap, { marginBottom: spacing.lg }]}>{icon}</View>}
+    <View style={[{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 60, paddingHorizontal: spacing.xl }, style]}>
+      {icon && <View style={{ marginBottom: spacing.lg, opacity: 0.6 }}>{icon}</View>}
 
       <Text
-        style={[
-          styles.title,
-          {
-            color: colors.textPrimary,
-            fontFamily: t.title.fontFamily,
-            fontSize: t.title.fontSize,
-            lineHeight: t.title.lineHeight,
-            marginBottom: spacing.xs,
-          },
-        ]}
+        style={{
+          color: colors.textPrimary,
+          fontFamily: 'Inter_600SemiBold',
+          fontSize: 18,
+          lineHeight: 25,
+          textAlign: 'center',
+          marginBottom: spacing.xs,
+        }}
       >
         {title}
       </Text>
 
       {message && (
         <Text
-          style={[
-            styles.message,
-            {
-              color: colors.textSecondary,
-              fontFamily: t.body.fontFamily,
-              fontSize: t.body.fontSize,
-              lineHeight: t.body.lineHeight,
-              marginBottom: spacing.lg,
-            },
-          ]}
+          style={{
+            color: colors.textSecondary,
+            fontFamily: 'Inter_400Regular',
+            fontSize: 16,
+            lineHeight: 24,
+            textAlign: 'center',
+            marginBottom: spacing.lg,
+          }}
         >
           {message}
         </Text>
       )}
 
       {actionLabel && onAction && (
-        <Button title={actionLabel} onPress={onAction} variant="outlined" size="sm" />
+        <Button title={actionLabel} onPress={onAction} variant="secondary" size="sm" />
       )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 60,
-  },
-  iconWrap: {
-    opacity: 0.6,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  message: {
-    textAlign: 'center',
-  },
-});

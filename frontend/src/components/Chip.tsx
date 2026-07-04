@@ -1,15 +1,7 @@
-/**
- * BabyGuide PH — Chip Component
- *
- * Selectable chips for symptom selection, category filters, etc.
- * Supports selected state with scale micro-interaction.
- */
-
 import React from 'react';
 import {
   TouchableOpacity,
   Text,
-  StyleSheet,
   type ViewStyle,
   type StyleProp,
 } from 'react-native';
@@ -33,7 +25,7 @@ export function Chip({
   style,
 }: ChipProps) {
   const { theme } = useTheme();
-  const { colors, radii, spacing } = theme;
+  const { colors, radii } = theme;
 
   return (
     <TouchableOpacity
@@ -43,13 +35,16 @@ export function Chip({
       accessibilityRole="checkbox"
       accessibilityState={{ checked: selected, disabled }}
       style={[
-        styles.container,
         {
-          borderRadius: radii.xl,
-          paddingVertical: spacing.xs,
-          paddingHorizontal: spacing.md,
+          flexDirection: 'row',
+          alignItems: 'center',
+          alignSelf: 'flex-start',
+          minHeight: 36,
+          borderRadius: radii.md,
+          paddingVertical: 8,
+          paddingHorizontal: 16,
           backgroundColor: selected ? colors.primary : colors.surface,
-          borderWidth: 1.5,
+          borderWidth: 1,
           borderColor: selected ? colors.primary : colors.border,
           opacity: disabled ? 0.5 : 1,
         },
@@ -58,29 +53,16 @@ export function Chip({
     >
       {icon && <>{icon}</>}
       <Text
-        style={[
-          styles.label,
-          {
-            color: selected ? colors.textInverse : colors.textPrimary,
-            fontFamily: theme.typography.bodySmall.fontFamily,
-            fontSize: theme.typography.bodySmall.fontSize,
-            lineHeight: theme.typography.bodySmall.lineHeight,
-            marginLeft: icon ? spacing.xxs : 0,
-          },
-        ]}
+        style={{
+          color: selected ? colors.textInverse : colors.textPrimary,
+          fontFamily: 'Inter_400Regular',
+          fontSize: 14,
+          lineHeight: 20,
+          marginLeft: icon ? 4 : 0,
+        }}
       >
         {label}
       </Text>
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    minHeight: 36,
-  },
-  label: {},
-});

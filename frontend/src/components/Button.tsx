@@ -1,15 +1,7 @@
-/**
- * BabyGuide PH — Button Component
- *
- * Variants: primary, secondary, outlined, danger
- * Supports loading state, disabled state, icons, and haptic feedback.
- */
-
 import React, { useCallback } from 'react';
 import {
   TouchableOpacity,
   Text,
-  StyleSheet,
   ActivityIndicator,
   View,
   type ViewStyle,
@@ -19,7 +11,7 @@ import {
 import { useTheme } from '../theme';
 import type { ThemeColors } from '../theme/colors';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outlined' | 'danger';
+export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'danger';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps {
@@ -50,7 +42,7 @@ export function Button({
   textStyle,
 }: ButtonProps) {
   const { theme } = useTheme();
-  const { colors, radii, spacing: sp } = theme;
+  const { colors, radii } = theme;
 
   const handlePress = useCallback(() => {
     if (!disabled && !loading) {
@@ -60,7 +52,7 @@ export function Button({
 
   const containerStyle = getContainerStyle(variant, colors, disabled);
   const labelStyle = getLabelStyle(variant, colors, disabled);
-  const sizeStyle = getSizeStyle(size, sp, radii);
+  const sizeStyle = getSizeStyle(size);
   const labelSizeStyle = getLabelSizeStyle(size);
 
   return (
@@ -69,10 +61,16 @@ export function Button({
       disabled={disabled || loading}
       activeOpacity={0.75}
       style={[
-        styles.base,
+        {
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 44,
+          borderRadius: radii.md,
+          flexDirection: 'row',
+        },
         containerStyle,
         sizeStyle,
-        fullWidth && styles.fullWidth,
+        fullWidth && { width: '100%' },
         style,
       ]}
       accessibilityRole="button"
@@ -82,26 +80,24 @@ export function Button({
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={variant === 'outlined' ? colors.primary : colors.textInverse}
+          color={variant === 'tertiary' ? colors.textLink : variant === 'secondary' ? colors.textPrimary : colors.textInverse}
         />
       ) : (
-        <View style={styles.content}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           {icon && iconPosition === 'left' && (
-            <View style={styles.iconLeft}>{icon}</View>
+            <View style={{ marginRight: 8 }}>{icon}</View>
           )}
-          <Text style={[styles.label, labelStyle, labelSizeStyle, textStyle]}>
+          <Text style={[{ letterSpacing: 0 }, labelStyle, labelSizeStyle, textStyle]}>
             {title}
           </Text>
           {icon && iconPosition === 'right' && (
-            <View style={styles.iconRight}>{icon}</View>
+            <View style={{ marginLeft: 8 }}>{icon}</View>
           )}
         </View>
       )}
     </TouchableOpacity>
   );
 }
-
-// ── Style helpers ──────────────────────────────────────
 
 function getContainerStyle(
   variant: ButtonVariant,
@@ -113,14 +109,14 @@ function getContainerStyle(
     case 'primary':
       return { backgroundColor: colors.primary, opacity };
     case 'secondary':
-      return { backgroundColor: colors.secondary, opacity };
-    case 'outlined':
       return {
-        backgroundColor: 'transparent',
-        borderWidth: 1.5,
-        borderColor: colors.primary,
+        backgroundColor: colors.surface,
+        borderWidth: 1,
+        borderColor: colors.border,
         opacity,
       };
+    case 'tertiary':
+      return { backgroundColor: 'transparent', opacity };
     case 'danger':
       return { backgroundColor: colors.danger, opacity };
   }
@@ -133,61 +129,34 @@ function getLabelStyle(
 ): TextStyle {
   switch (variant) {
     case 'primary':
+      return { color: colors.textInverse, fontFamily: 'Inter_500Medium', fontSize: 14 };
     case 'secondary':
+      return { color: colors.textPrimary, fontFamily: 'Inter_500Medium', fontSize: 14 };
+    case 'tertiary':
+      return { color: colors.textLink, fontFamily: 'Inter_500Medium', fontSize: 14 };
     case 'danger':
-      return { color: colors.textInverse };
-    case 'outlined':
-      return { color: colors.primary };
+      return { color: colors.textInverse, fontFamily: 'Inter_500Medium', fontSize: 14 };
   }
 }
 
-function getSizeStyle(
-  size: ButtonSize,
-  sp: typeof import('../theme/spacing').spacing,
-  r: typeof import('../theme/spacing').radii,
-): ViewStyle {
+function getSizeStyle(size: ButtonSize): ViewStyle {
   switch (size) {
     case 'sm':
-      return { paddingVertical: sp.xs, paddingHorizontal: sp.md, borderRadius: r.sm };
+      return { paddingVertical: 6, paddingHorizontal: 14 };
     case 'md':
-      return { paddingVertical: sp.sm, paddingHorizontal: sp.xl, borderRadius: r.lg };
+      return { paddingVertical: 10, paddingHorizontal: 18 };
     case 'lg':
-      return { paddingVertical: sp.md, paddingHorizontal: sp.xxl, borderRadius: r.lg };
+      return { paddingVertical: 14, paddingHorizontal: 24 };
   }
 }
 
 function getLabelSizeStyle(size: ButtonSize): TextStyle {
   switch (size) {
     case 'sm':
-      return { fontSize: 14, lineHeight: 20 };
+      return { fontSize: 13 };
     case 'md':
-      return { fontSize: 16, lineHeight: 24 };
+      return { fontSize: 14 };
     case 'lg':
-      return { fontSize: 18, lineHeight: 26 };
+      return { fontSize: 16 };
   }
 }
-
-const styles = StyleSheet.create({
-  base: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 44, // tap target
-  },
-  fullWidth: {
-    width: '100%',
-  },
-  content: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  label: {
-    fontFamily: 'Inter_600SemiBold',
-    letterSpacing: 0.5,
-  },
-  iconLeft: {
-    marginRight: 8,
-  },
-  iconRight: {
-    marginLeft: 8,
-  },
-});

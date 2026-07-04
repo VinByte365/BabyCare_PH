@@ -1,123 +1,134 @@
 /**
  * BabyGuide PH — Typography Tokens
  *
- * Display/headings → Nunito (rounded, friendly)
- * Body text        → Inter (highly legible humanist sans-serif)
- *
- * Minimum body size: 16 — accessible for sleep-deprived parents.
+ * Per DESIGN.md: Inter is the single sans family across every text role.
+ * JetBrains Mono carries every code surface.
+ * Display weight stays at 600, body at 400.
  */
 
 export const fontFamilies = {
-  displayRegular:  'Nunito_400Regular',
-  displayMedium:   'Nunito_500Medium',
-  displaySemiBold: 'Nunito_600SemiBold',
-  displayBold:     'Nunito_700Bold',
-  displayExtraBold:'Nunito_800ExtraBold',
-
-  bodyRegular:     'Inter_400Regular',
-  bodyMedium:      'Inter_500Medium',
-  bodySemiBold:    'Inter_600SemiBold',
-  bodyBold:        'Inter_700Bold',
+  display:    'Inter_600SemiBold',
+  body:       'Inter_400Regular',
+  bodyMedium: 'Inter_500Medium',
+  bodyBold:   'Inter_700Bold',
+  code:       'JetBrainsMono_400Regular',
 } as const;
 
 export type FontFamily = typeof fontFamilies[keyof typeof fontFamilies];
 
-// ── Type Scale ──────────────────────────────────────────
+// ── Type Scale (Expo DESIGN.md tokens) ────────────────
 export const typography = {
-  /** App title, hero sections */
-  display: {
-    fontFamily: fontFamilies.displayExtraBold,
-    fontSize: 32,
-    lineHeight: 40,
+  /** Homepage hero h1 — 64px / 600 / -1.92px */
+  displayMega: {
+    fontFamily: fontFamilies.display,
+    fontSize: 64,
+    lineHeight: 1.05,
+    letterSpacing: -1.92,
+  },
+
+  /** Subsidiary heroes — 48px / 600 / -1.44px */
+  displayXl: {
+    fontFamily: fontFamilies.display,
+    fontSize: 48,
+    lineHeight: 1.1,
+    letterSpacing: -1.44,
+  },
+
+  /** Section heads — 36px / 600 / -1.08px */
+  displayLg: {
+    fontFamily: fontFamilies.display,
+    fontSize: 36,
+    lineHeight: 1.15,
+    letterSpacing: -1.08,
+  },
+
+  /** Sub-section heads — 28px / 600 / -0.84px */
+  displayMd: {
+    fontFamily: fontFamilies.display,
+    fontSize: 28,
+    lineHeight: 1.2,
+    letterSpacing: -0.84,
+  },
+
+  /** Card group titles — 22px / 600 / -0.5px */
+  displaySm: {
+    fontFamily: fontFamilies.display,
+    fontSize: 22,
+    lineHeight: 1.25,
     letterSpacing: -0.5,
   },
 
-  /** Section headings */
-  heading1: {
-    fontFamily: fontFamilies.displayBold,
-    fontSize: 26,
-    lineHeight: 34,
-    letterSpacing: -0.3,
-  },
-
-  heading2: {
-    fontFamily: fontFamilies.displayBold,
-    fontSize: 22,
-    lineHeight: 30,
-    letterSpacing: -0.2,
-  },
-
-  /** Card titles, toolbar titles */
-  title: {
-    fontFamily: fontFamilies.displaySemiBold,
-    fontSize: 20,
-    lineHeight: 28,
-    letterSpacing: 0,
-  },
-
-  /** Sub-headings */
-  subtitle: {
-    fontFamily: fontFamilies.displayMedium,
+  /** Component titles — 18px / 600 / 0 */
+  titleMd: {
+    fontFamily: fontFamilies.display,
     fontSize: 18,
-    lineHeight: 26,
+    lineHeight: 1.4,
     letterSpacing: 0,
   },
 
-  /** Primary body text (min 16) */
+  /** List labels — 16px / 600 / 0 */
+  titleSm: {
+    fontFamily: fontFamilies.display,
+    fontSize: 16,
+    lineHeight: 1.4,
+    letterSpacing: 0,
+  },
+
+  /** Default body text — 16px / 400 / 0 */
   body: {
-    fontFamily: fontFamilies.bodyRegular,
+    fontFamily: fontFamilies.body,
     fontSize: 16,
-    lineHeight: 24,
-    letterSpacing: 0.1,
+    lineHeight: 1.5,
+    letterSpacing: 0,
   },
 
-  /** Emphasized body text */
-  bodyBold: {
-    fontFamily: fontFamilies.bodySemiBold,
-    fontSize: 16,
-    lineHeight: 24,
-    letterSpacing: 0.1,
-  },
-
-  /** Secondary information */
-  bodySmall: {
-    fontFamily: fontFamilies.bodyRegular,
+  /** Footer body — 14px / 400 / 0 */
+  bodySm: {
+    fontFamily: fontFamilies.body,
     fontSize: 14,
-    lineHeight: 20,
-    letterSpacing: 0.15,
+    lineHeight: 1.5,
+    letterSpacing: 0,
   },
 
-  /** Timestamps, metadata, labels */
+  /** Photo captions — 13px / 400 / 0 */
   caption: {
-    fontFamily: fontFamilies.bodyRegular,
-    fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 0.3,
+    fontFamily: fontFamilies.body,
+    fontSize: 13,
+    lineHeight: 1.4,
+    letterSpacing: 0,
   },
 
-  /** Button labels */
-  button: {
-    fontFamily: fontFamilies.bodySemiBold,
-    fontSize: 16,
-    lineHeight: 24,
-    letterSpacing: 0.5,
-  },
-
-  /** Small button labels */
-  buttonSmall: {
-    fontFamily: fontFamilies.bodySemiBold,
-    fontSize: 14,
-    lineHeight: 20,
-    letterSpacing: 0.5,
-  },
-
-  /** Medical labels, severity tags */
-  medicalLabel: {
-    fontFamily: fontFamilies.bodySemiBold,
+  /** Section labels, badges — 11px / 600 / 0.88px uppercase */
+  captionUppercase: {
+    fontFamily: fontFamilies.display,
     fontSize: 11,
-    lineHeight: 14,
-    letterSpacing: 0.8,
+    lineHeight: 1.4,
+    letterSpacing: 0.88,
     textTransform: 'uppercase' as const,
+  },
+
+  /** CTA labels — 14px / 500 / 0 */
+  button: {
+    fontFamily: fontFamilies.bodyMedium,
+    fontSize: 14,
+    lineHeight: 1.0,
+    letterSpacing: 0,
+  },
+
+  /** Top-nav menu — 14px / 500 / 0 */
+  navLink: {
+    fontFamily: fontFamilies.bodyMedium,
+    fontSize: 14,
+    lineHeight: 1.4,
+    letterSpacing: 0,
+  },
+
+  /** Code blocks — JetBrains Mono 13px */
+  code: {
+    fontFamily: fontFamilies.code,
+    fontSize: 13,
+    lineHeight: 1.5,
+    letterSpacing: 0,
   },
 } as const;
 

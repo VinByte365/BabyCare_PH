@@ -1,13 +1,8 @@
-/**
- * BabyGuide PH — Login Screen
- */
-
 import React, { useState } from 'react';
 import {
   View,
   Text,
   TextInput,
-  StyleSheet,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
@@ -23,7 +18,7 @@ import type { AuthScreenProps } from '../../navigation/types';
 
 export function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
   const { theme } = useTheme();
-  const { colors, spacing, typography: t, radii } = theme;
+  const { colors, spacing, radii } = theme;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -36,15 +31,9 @@ export function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
       Alert.alert('Validation Error', 'Please fill in all fields.');
       return;
     }
-    
     setLoading(true);
     try {
-      // For presentation/offline test, simulate login if server is not reachable
-      // We will perform a fetch later when connecting.
-      // Simulating a brief delay:
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
-      // Seed dummy user
       setUser({
         id: '1',
         email: email.toLowerCase(),
@@ -53,8 +42,6 @@ export function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
         role: 'parent',
       });
       await setTokens('dummy_access_token', 'dummy_refresh_token');
-      
-      // Navigate to main
       navigation.getParent()?.navigate('Main');
     } catch (err: any) {
       Alert.alert('Login Failed', err.message || 'Something went wrong.');
@@ -64,78 +51,50 @@ export function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-      >
-        <ScrollView
-          contentContainerStyle={[styles.scroll, { paddingHorizontal: spacing.xl }]}
-          showsVerticalScrollIndicator={false}
-        >
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
           {/* Header */}
-          <View style={[styles.header, { marginTop: spacing.xxxl, marginBottom: spacing.xxl }]}>
+          <View style={{ alignItems: 'center', marginTop: spacing.xxl, marginBottom: spacing.xl }}>
             <View
-              style={[
-                styles.iconContainer,
-                {
-                  backgroundColor: colors.primary + '15',
-                  borderColor: colors.primary + '30',
-                  borderRadius: radii.full,
-                  borderWidth: 1.5,
-                  marginBottom: spacing.md,
-                },
-              ]}
-            >
-              <Ionicons name="heart" size={32} color={colors.primary} />
-            </View>
-            <Text
               style={{
-                fontFamily: t.heading1.fontFamily,
-                fontSize: t.heading1.fontSize,
-                color: colors.textPrimary,
-                fontWeight: 'bold',
-                textAlign: 'center',
+                width: 64,
+                height: 64,
+                borderRadius: radii.full,
+                backgroundColor: colors.surfaceStrong,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: spacing.base,
               }}
             >
+              <Ionicons name="heart" size={32} color={colors.iconActive} />
+            </View>
+            <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 28, lineHeight: 34, color: colors.textPrimary, textAlign: 'center' }}>
               Welcome Back
             </Text>
-            <Text
-              style={{
-                fontFamily: t.body.fontFamily,
-                fontSize: t.bodySmall.fontSize,
-                color: colors.textSecondary,
-                marginTop: 4,
-                textAlign: 'center',
-              }}
-            >
+            <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 14, color: colors.textSecondary, marginTop: 4, textAlign: 'center' }}>
               Log in to access your baby guide and tools
             </Text>
           </View>
 
           {/* Form Card */}
-          <Card elevated style={{ padding: spacing.lg, marginBottom: spacing.xl }}>
+          <Card style={{ padding: spacing.lg, marginBottom: spacing.xl }}>
             {/* Email Input */}
-            <Text
-              style={{
-                fontFamily: t.bodyBold.fontFamily,
-                fontSize: t.bodySmall.fontSize,
-                color: colors.textPrimary,
-                marginBottom: spacing.xs,
-              }}
-            >
+            <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 14, color: colors.textPrimary, marginBottom: spacing.xs }}>
               Email Address
             </Text>
             <View
-              style={[
-                styles.inputWrapper,
-                {
-                  borderColor: colors.border,
-                  borderRadius: radii.sm,
-                  backgroundColor: colors.backgroundSecondary,
-                  marginBottom: spacing.md,
-                },
-              ]}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: colors.border,
+                borderRadius: radii.md,
+                backgroundColor: colors.backgroundSecondary,
+                paddingHorizontal: 12,
+                height: 44,
+                marginBottom: spacing.base,
+              }}
             >
               <Ionicons name="mail-outline" size={20} color={colors.placeholder} style={{ marginRight: 8 }} />
               <TextInput
@@ -145,31 +104,26 @@ export function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
                 placeholderTextColor={colors.placeholder}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                style={[styles.input, { color: colors.textPrimary, fontFamily: t.body.fontFamily }]}
+                style={{ flex: 1, height: '100%', fontSize: 16, color: colors.textPrimary, fontFamily: 'Inter_400Regular' }}
               />
             </View>
 
             {/* Password Input */}
-            <Text
-              style={{
-                fontFamily: t.bodyBold.fontFamily,
-                fontSize: t.bodySmall.fontSize,
-                color: colors.textPrimary,
-                marginBottom: spacing.xs,
-              }}
-            >
+            <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 14, color: colors.textPrimary, marginBottom: spacing.xs }}>
               Password
             </Text>
             <View
-              style={[
-                styles.inputWrapper,
-                {
-                  borderColor: colors.border,
-                  borderRadius: radii.sm,
-                  backgroundColor: colors.backgroundSecondary,
-                  marginBottom: spacing.sm,
-                },
-              ]}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: colors.border,
+                borderRadius: radii.md,
+                backgroundColor: colors.backgroundSecondary,
+                paddingHorizontal: 12,
+                height: 44,
+                marginBottom: spacing.sm,
+              }}
             >
               <Ionicons name="lock-closed-outline" size={20} color={colors.placeholder} style={{ marginRight: 8 }} />
               <TextInput
@@ -179,63 +133,31 @@ export function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
                 placeholderTextColor={colors.placeholder}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
-                style={[styles.input, { color: colors.textPrimary, fontFamily: t.body.fontFamily }]}
+                style={{ flex: 1, height: '100%', fontSize: 16, color: colors.textPrimary, fontFamily: 'Inter_400Regular' }}
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons
-                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                  size={20}
-                  color={colors.placeholder}
-                />
+                <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color={colors.placeholder} />
               </TouchableOpacity>
             </View>
 
             {/* Forgot Password Link */}
-            <TouchableOpacity
-              onPress={() => navigation.navigate('ForgotPassword')}
-              style={styles.forgotBtn}
-            >
-              <Text
-                style={{
-                  fontFamily: t.bodySmall.fontFamily,
-                  fontSize: 13,
-                  color: colors.primary,
-                  textAlign: 'right',
-                }}
-              >
+            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')} style={{ alignSelf: 'flex-end', paddingVertical: 4 }}>
+              <Text style={{ fontFamily: 'Inter_500Medium', fontSize: 13, color: colors.textLink, textAlign: 'right' }}>
                 Forgot Password?
               </Text>
             </TouchableOpacity>
 
             {/* Login Button */}
-            <Button
-              title="Log In"
-              onPress={handleLogin}
-              loading={loading}
-              fullWidth
-              style={{ marginTop: spacing.md }}
-            />
+            <Button title="Log In" onPress={handleLogin} loading={loading} fullWidth style={{ marginTop: spacing.base }} />
           </Card>
 
           {/* Registration Link */}
-          <View style={styles.footer}>
-            <Text
-              style={{
-                fontFamily: t.body.fontFamily,
-                fontSize: t.bodySmall.fontSize,
-                color: colors.textSecondary,
-              }}
-            >
+          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 8 }}>
+            <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 14, color: colors.textSecondary }}>
               Don't have an account?{' '}
             </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-              <Text
-                style={{
-                  fontFamily: t.bodyBold.fontFamily,
-                  fontSize: t.bodySmall.fontSize,
-                  color: colors.primary,
-                }}
-              >
+              <Text style={{ fontFamily: 'Inter_500Medium', fontSize: 14, color: colors.textLink }}>
                 Sign Up
               </Text>
             </TouchableOpacity>
@@ -245,43 +167,3 @@ export function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scroll: {
-    paddingBottom: 40,
-  },
-  header: {
-    alignItems: 'center',
-  },
-  iconContainer: {
-    width: 64,
-    height: 64,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1.5,
-    paddingHorizontal: 12,
-    height: 48,
-  },
-  input: {
-    flex: 1,
-    height: '100%',
-    fontSize: 16,
-  },
-  forgotBtn: {
-    alignSelf: 'flex-end',
-    paddingVertical: 4,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-});

@@ -38,8 +38,11 @@ interface AuthState {
   // Actions
   setTokens: (access: string, refresh: string) => Promise<void>;
   setUser: (user: User) => void;
+  updateUser: (updates: Partial<User>) => void;
   setBabies: (babies: Baby[]) => void;
   addBaby: (baby: Baby) => void;
+  updateBaby: (babyId: string, updates: Partial<Baby>) => void;
+  removeBaby: (babyId: string) => void;
   logout: () => Promise<void>;
   loadStoredAuth: () => Promise<void>;
 }
@@ -77,10 +80,27 @@ export const useAuthStore = create<AuthState>((set, _get) => ({
 
   setUser: (user) => set({ user }),
 
+  updateUser: (updates) =>
+    set((state) => ({
+      user: state.user ? { ...state.user, ...updates } : null,
+    })),
+
   setBabies: (babies) => set({ babies }),
 
   addBaby: (baby) =>
     set((state) => ({ babies: [...state.babies, baby] })),
+
+  updateBaby: (babyId, updates) =>
+    set((state) => ({
+      babies: state.babies.map((b) =>
+        b.id === babyId ? { ...b, ...updates } : b
+      ),
+    })),
+
+  removeBaby: (babyId) =>
+    set((state) => ({
+      babies: state.babies.filter((b) => b.id !== babyId),
+    })),
 
   logout: async () => {
     await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);

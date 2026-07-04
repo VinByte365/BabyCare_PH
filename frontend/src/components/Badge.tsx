@@ -1,12 +1,5 @@
-/**
- * BabyGuide PH — Badge Component
- *
- * Variants: emergency, moderate, low, new, reminder, info
- * Used for severity indicators, status labels, tags.
- */
-
 import React from 'react';
-import { View, Text, StyleSheet, type ViewStyle, type StyleProp } from 'react-native';
+import { View, Text, type ViewStyle, type StyleProp } from 'react-native';
 import { useTheme } from '../theme';
 import type { ThemeColors } from '../theme/colors';
 
@@ -23,16 +16,16 @@ function getVariantColors(variant: BadgeVariant, colors: ThemeColors) {
     case 'emergency':
       return { bg: colors.danger, text: colors.textInverse };
     case 'moderate':
-      return { bg: colors.accent, text: colors.textPrimary };
+      return { bg: colors.warning, text: '#fff' };
     case 'low':
-      return { bg: colors.successLight, text: colors.success };
+      return { bg: colors.success, text: '#fff' };
     case 'new':
       return { bg: colors.primary, text: colors.textInverse };
     case 'reminder':
-      return { bg: colors.infoLight, text: colors.info };
+      return { bg: colors.surfaceStrong, text: colors.textPrimary };
     case 'info':
     default:
-      return { bg: colors.backgroundSecondary, text: colors.textSecondary };
+      return { bg: colors.surfaceStrong, text: colors.textSecondary };
   }
 }
 
@@ -43,38 +36,28 @@ export function Badge({ label, variant = 'info', style }: BadgeProps) {
   return (
     <View
       style={[
-        styles.container,
         {
+          alignSelf: 'flex-start',
           backgroundColor: variantColors.bg,
-          borderRadius: theme.radii.xs,
-          paddingHorizontal: theme.spacing.xs,
-          paddingVertical: 2,
+          borderRadius: theme.radii.pill,
+          paddingHorizontal: 10,
+          paddingVertical: 4,
         },
         style,
       ]}
     >
       <Text
-        style={[
-          styles.label,
-          {
-            color: variantColors.text,
-            fontSize: theme.typography.medicalLabel.fontSize,
-            fontFamily: theme.typography.medicalLabel.fontFamily,
-            letterSpacing: theme.typography.medicalLabel.letterSpacing,
-            lineHeight: theme.typography.medicalLabel.lineHeight,
-            textTransform: theme.typography.medicalLabel.textTransform,
-          },
-        ]}
+        style={{
+          color: variantColors.text,
+          fontSize: 11,
+          fontFamily: 'Inter_600SemiBold',
+          letterSpacing: 0.88,
+          lineHeight: 14,
+          textTransform: 'uppercase',
+        }}
       >
         {label}
       </Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignSelf: 'flex-start',
-  },
-  label: {},
-});

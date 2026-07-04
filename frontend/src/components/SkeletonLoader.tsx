@@ -1,15 +1,7 @@
-/**
- * BabyGuide PH — SkeletonLoader Component
- *
- * Shimmer loading placeholder for polished content loading states.
- * Uses pure RN Animated API (no reanimated dependency for this simple case).
- */
-
 import React, { useEffect, useRef } from 'react';
 import {
   View,
   Animated,
-  StyleSheet,
   type ViewStyle,
   type StyleProp,
 } from 'react-native';
@@ -55,8 +47,8 @@ export function SkeletonLoader({
   const backgroundColor = shimmerAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [
-      theme.isDark ? '#2D343C' : '#E8E6E3',
-      theme.isDark ? '#3A4048' : '#F0EEED',
+      theme.isDark ? '#2a2a2a' : '#f0f0f3',
+      theme.isDark ? '#333333' : '#e0e0e3',
     ],
   });
 
@@ -75,23 +67,17 @@ export function SkeletonLoader({
   );
 }
 
-// ── Prebuilt skeleton patterns ─────────────────────────
-
-/** Skeleton for a card with title + two lines of text */
 export function SkeletonCard() {
   const { theme } = useTheme();
   return (
     <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: theme.colors.cardBackground,
-          borderRadius: theme.radii.lg,
-          padding: theme.spacing.md,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderColor: theme.colors.cardBorder,
-        },
-      ]}
+      style={{
+        backgroundColor: theme.colors.cardBackground,
+        borderRadius: theme.radii.lg,
+        padding: theme.spacing.base,
+        borderWidth: 1,
+        borderColor: theme.colors.cardBorder,
+      }}
     >
       <SkeletonLoader width="60%" height={20} borderRadius={theme.radii.sm} />
       <View style={{ height: theme.spacing.sm }} />
@@ -102,25 +88,19 @@ export function SkeletonCard() {
   );
 }
 
-/** Skeleton for a list item */
 export function SkeletonListItem() {
   const { theme } = useTheme();
   return (
     <View
-      style={[
-        styles.listItem,
-        {
-          paddingVertical: theme.spacing.sm,
-          paddingHorizontal: theme.spacing.md,
-        },
-      ]}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: theme.spacing.sm,
+        paddingHorizontal: theme.spacing.base,
+      }}
     >
-      <SkeletonLoader
-        width={44}
-        height={44}
-        borderRadius={theme.radii.full}
-      />
-      <View style={[styles.listItemContent, { marginLeft: theme.spacing.sm }]}>
+      <SkeletonLoader width={44} height={44} borderRadius={theme.radii.full} />
+      <View style={{ flex: 1, marginLeft: theme.spacing.sm }}>
         <SkeletonLoader width="70%" height={16} />
         <View style={{ height: 6 }} />
         <SkeletonLoader width="40%" height={12} />
@@ -128,14 +108,3 @@ export function SkeletonListItem() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {},
-  listItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  listItemContent: {
-    flex: 1,
-  },
-});

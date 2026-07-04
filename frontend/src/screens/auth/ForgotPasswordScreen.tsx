@@ -1,18 +1,13 @@
-/**
- * BabyGuide PH — Forgot Password Screen
- */
-
 import React, { useState } from 'react';
 import {
   View,
   Text,
   TextInput,
-  StyleSheet,
+  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Alert,
-  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,7 +17,7 @@ import type { AuthScreenProps } from '../../navigation/types';
 
 export function ForgotPasswordScreen({ navigation }: AuthScreenProps<'ForgotPassword'>) {
   const { theme } = useTheme();
-  const { colors, spacing, typography: t, radii } = theme;
+  const { colors, spacing, radii } = theme;
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -31,7 +26,6 @@ export function ForgotPasswordScreen({ navigation }: AuthScreenProps<'ForgotPass
       Alert.alert('Validation Error', 'Please enter your email address.');
       return;
     }
-
     setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -48,89 +42,35 @@ export function ForgotPasswordScreen({ navigation }: AuthScreenProps<'ForgotPass
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-      >
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         {/* Back button */}
-        <View style={[styles.headerRow, { paddingHorizontal: spacing.md }]}>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Login')}
-            style={[styles.backBtn, { height: 44, width: 44, justifyContent: 'center' }]}
-          >
+        <View style={{ paddingHorizontal: spacing.base, paddingTop: 8 }}>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')} style={{ height: 44, width: 44, justifyContent: 'center' }}>
             <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
           </TouchableOpacity>
         </View>
 
-        <ScrollView
-          contentContainerStyle={[styles.scroll, { paddingHorizontal: spacing.xl }]}
-          showsVerticalScrollIndicator={false}
-        >
+        <ScrollView contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
           {/* Header */}
-          <View style={[styles.header, { marginTop: spacing.md, marginBottom: spacing.xl }]}>
-            <View
-              style={[
-                styles.iconContainer,
-                {
-                  backgroundColor: colors.accent + '15',
-                  borderColor: colors.accent + '30',
-                  borderRadius: radii.full,
-                  borderWidth: 1.5,
-                  marginBottom: spacing.md,
-                },
-              ]}
-            >
-              <Ionicons name="key-outline" size={32} color={colors.accent} />
+          <View style={{ alignItems: 'center', marginTop: spacing.base, marginBottom: spacing.xl }}>
+            <View style={{ width: 64, height: 64, borderRadius: radii.full, backgroundColor: colors.surfaceStrong, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.base }}>
+              <Ionicons name="key-outline" size={32} color={colors.iconActive} />
             </View>
-            <Text
-              style={{
-                fontFamily: t.heading1.fontFamily,
-                fontSize: t.heading1.fontSize,
-                color: colors.textPrimary,
-                fontWeight: 'bold',
-                textAlign: 'center',
-              }}
-            >
+            <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 28, lineHeight: 34, color: colors.textPrimary, textAlign: 'center' }}>
               Reset Password
             </Text>
-            <Text
-              style={{
-                fontFamily: t.body.fontFamily,
-                fontSize: t.bodySmall.fontSize,
-                color: colors.textSecondary,
-                marginTop: 4,
-                textAlign: 'center',
-              }}
-            >
+            <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 14, color: colors.textSecondary, marginTop: 4, textAlign: 'center' }}>
               Enter your email and we'll send instructions to reset your password
             </Text>
           </View>
 
           {/* Form Card */}
-          <Card elevated style={{ padding: spacing.lg, marginBottom: spacing.xl }}>
-            {/* Email Input */}
-            <Text
-              style={{
-                fontFamily: t.bodyBold.fontFamily,
-                fontSize: t.bodySmall.fontSize,
-                color: colors.textPrimary,
-                marginBottom: spacing.xs,
-              }}
-            >
+          <Card style={{ padding: spacing.lg, marginBottom: spacing.xl }}>
+            <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 14, color: colors.textPrimary, marginBottom: spacing.xs }}>
               Email Address
             </Text>
-            <View
-              style={[
-                styles.inputWrapper,
-                {
-                  borderColor: colors.border,
-                  borderRadius: radii.sm,
-                  backgroundColor: colors.backgroundSecondary,
-                  marginBottom: spacing.lg,
-                },
-              ]}
-            >
+            <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: colors.border, borderRadius: radii.md, backgroundColor: colors.backgroundSecondary, paddingHorizontal: 12, height: 44, marginBottom: spacing.lg }}>
               <Ionicons name="mail-outline" size={20} color={colors.placeholder} style={{ marginRight: 8 }} />
               <TextInput
                 value={email}
@@ -139,54 +79,13 @@ export function ForgotPasswordScreen({ navigation }: AuthScreenProps<'ForgotPass
                 placeholderTextColor={colors.placeholder}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                style={[styles.input, { color: colors.textPrimary, fontFamily: t.body.fontFamily }]}
+                style={{ flex: 1, height: '100%', fontSize: 16, color: colors.textPrimary, fontFamily: 'Inter_400Regular' }}
               />
             </View>
-
-            {/* Submit Button */}
-            <Button
-              title="Send Instructions"
-              onPress={handleReset}
-              loading={loading}
-              fullWidth
-            />
+            <Button title="Send Instructions" onPress={handleReset} loading={loading} fullWidth />
           </Card>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  headerRow: {
-    paddingTop: 8,
-  },
-  backBtn: {},
-  scroll: {
-    paddingBottom: 40,
-  },
-  header: {
-    alignItems: 'center',
-  },
-  iconContainer: {
-    width: 64,
-    height: 64,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1.5,
-    paddingHorizontal: 12,
-    height: 48,
-  },
-  input: {
-    flex: 1,
-    height: '100%',
-    fontSize: 16,
-  },
-});

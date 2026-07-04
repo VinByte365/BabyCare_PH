@@ -1,163 +1,154 @@
 /**
  * BabyGuide PH — Color Tokens
  *
- * Soft, nurturing palette designed for a healthcare / baby-care context.
- * Low eye-strain for night-time use; never clinical or cold.
+ * Redesigned per DESIGN.md: minimal editorial palette with
+ * pure white canvas, near-black ink, black CTAs, blue inline links.
  */
 
 export const palette = {
-  // ── Brand ──────────────────────────────────────────────
-  sage:        '#7FB3A3',   // Primary — calm, "healthy"
-  sageDark:    '#5E9485',
-  sageLight:   '#A8D5C8',
+  // ── Brand & CTA ──────────────────────────────────────
+  primary:        '#000000',
+  primaryActive:  '#1a1a1a',
 
-  coral:       '#FFB6A3',   // Secondary — warmth, CTAs
-  coralDark:   '#E8957F',
-  coralLight:  '#FFD4C8',
+  // ── Text Links ──────────────────────────────────────
+  textLink:       '#0d74ce',
+  textLinkSecondary: '#476cff',
 
-  yellow:      '#F5D06E',   // Accent — warnings, highlights, education
-  yellowDark:  '#D4AF37',
-  yellowLight: '#FBE9A7',
+  // ── Text ────────────────────────────────────────────
+  ink:            '#171717',
+  body:           '#60646c',
+  bodyStrong:     '#171717',
+  muted:          '#999999',
+  mutedSoft:      '#cccccc',
 
-  // ── Semantic ──────────────────────────────────────────
-  danger:      '#E0524C',   // Emergency — muted red
-  dangerDark:  '#C0312B',
-  dangerLight: '#F5A3A0',
+  // ── Surfaces ────────────────────────────────────────
+  white:          '#ffffff',
+  canvas:         '#ffffff',
+  canvasSoft:     '#fafafa',
+  surfaceCard:    '#ffffff',
+  surfaceStrong:  '#f0f0f3',
+  surfaceDark:    '#171717',
+  surfaceDarkElevated: '#1a1a1a',
 
-  success:     '#6BC29A',
-  successDark: '#4AA87D',
-  successLight:'#A8E6C5',
+  // ── Hairlines ───────────────────────────────────────
+  hairline:       '#f0f0f3',
+  hairlineSoft:   '#f5f5f7',
+  hairlineStrong: '#dcdee0',
 
-  info:        '#6AABDB',
-  infoDark:    '#4A8FC0',
-  infoLight:   '#A0D0F0',
+  // ── Sky Gradient ────────────────────────────────────
+  gradientSkyLight: '#cfe7ff',
+  gradientSkyMid:   '#a8c8e8',
 
-  // ── Neutrals ─────────────────────────────────────────
-  white:       '#FFFFFF',
-  offWhite:    '#FDFBF7',   // warm off-white for light bg
-  gray50:      '#F8F7F4',
-  gray100:     '#F0EEED',
-  gray200:     '#E2E0DD',
-  gray300:     '#C5C3C0',
-  gray400:     '#9E9C99',
-  gray500:     '#6E6C69',
-  gray600:     '#4A4845',
-  gray700:     '#2E3A36',   // primary text (dark sage-gray)
-  gray800:     '#232927',
-  gray900:     '#1B2027',   // dark-mode bg (soft charcoal)
-  black:       '#111215',
+  // ── Accents ─────────────────────────────────────────
+  accentWarning:    '#ab6400',
+  accentPreview:    '#8145b5',
+  accentLinkBright: '#47c2ff',
+
+  // ── Semantic ────────────────────────────────────────
+  semanticError:   '#eb8e90',
+  semanticSuccess: '#16a34a',
 } as const;
 
 // ── Light Theme ────────────────────────────────────────
 export const lightColors = {
-  // Backgrounds
-  background:        palette.offWhite,
-  backgroundSecondary:palette.gray50,
-  surface:           palette.white,
-  surfaceElevated:   palette.white,
+  background:           palette.canvas,
+  backgroundSecondary:  palette.canvasSoft,
+  surface:              palette.surfaceCard,
+  surfaceElevated:      palette.surfaceCard,
+  surfaceStrong:        palette.surfaceStrong,
+  surfaceDark:          palette.surfaceDark,
+  surfaceDarkElevated:  palette.surfaceDarkElevated,
 
-  // Text
-  textPrimary:       palette.gray700,
-  textSecondary:     palette.gray500,
-  textTertiary:      palette.gray400,
-  textInverse:       palette.white,
+  textPrimary:          palette.ink,
+  textSecondary:        palette.body,
+  textTertiary:         palette.muted,
+  textMuted:            palette.mutedSoft,
+  textInverse:          palette.white,
+  textLink:             palette.textLink,
+  textLinkSecondary:    palette.textLinkSecondary,
+  onDark:               palette.white,
+  onDarkSoft:           '#b0b4ba',
 
-  // Brand
-  primary:           palette.sage,
-  primaryDark:       palette.sageDark,
-  primaryLight:      palette.sageLight,
-  secondary:         palette.coral,
-  secondaryDark:     palette.coralDark,
-  secondaryLight:    palette.coralLight,
-  accent:            palette.yellow,
-  accentDark:        palette.yellowDark,
-  accentLight:       palette.yellowLight,
+  primary:              palette.primary,
+  primaryActive:        palette.primaryActive,
 
-  // Semantic
-  danger:            palette.danger,
-  dangerLight:       palette.dangerLight,
-  success:           palette.success,
-  successLight:      palette.successLight,
-  info:              palette.info,
-  infoLight:         palette.infoLight,
+  danger:               palette.semanticError,
+  success:              palette.semanticSuccess,
+  warning:              palette.accentWarning,
+  preview:              palette.accentPreview,
 
-  // UI elements
-  border:            palette.gray200,
-  borderFocused:     palette.sage,
-  divider:           palette.gray100,
-  icon:              palette.gray500,
-  iconActive:        palette.sage,
-  placeholder:       palette.gray400,
-  overlay:           'rgba(0,0,0,0.4)',
+  border:               palette.hairlineStrong,
+  borderLight:          palette.hairline,
+  borderSoft:           palette.hairlineSoft,
+  divider:              palette.hairline,
+  icon:                 palette.body,
+  iconActive:           palette.ink,
+  placeholder:          palette.muted,
+  overlay:              'rgba(0,0,0,0.4)',
 
-  // Tab bar
-  tabBar:            palette.white,
-  tabBarBorder:      palette.gray200,
-  tabBarActive:      palette.sage,
-  tabBarInactive:    palette.gray400,
+  tabBar:               palette.canvas,
+  tabBarBorder:         palette.hairline,
+  tabBarActive:         palette.ink,
+  tabBarInactive:       palette.muted,
 
-  // Cards
-  cardBackground:    palette.white,
-  cardBorder:        palette.gray100,
+  cardBackground:       palette.surfaceCard,
+  cardBorder:           palette.hairlineStrong,
 
-  // Status bar
-  statusBar:         'dark-content' as const,
+  gradientSkyLight:     palette.gradientSkyLight,
+  gradientSkyMid:       palette.gradientSkyMid,
+
+  statusBar:            'dark-content' as const,
 } as const;
 
 // ── Dark Theme (Night Mode) ───────────────────────────
 export const darkColors = {
-  // Backgrounds
-  background:        palette.gray900,
-  backgroundSecondary:'#212830',
-  surface:           '#252C34',
-  surfaceElevated:   '#2D343C',
+  background:           '#171717',
+  backgroundSecondary:  '#1a1a1a',
+  surface:              '#1a1a1a',
+  surfaceElevated:      '#222222',
+  surfaceStrong:        '#2a2a2a',
+  surfaceDark:          '#000000',
+  surfaceDarkElevated:  '#1a1a1a',
 
-  // Text
-  textPrimary:       '#EAE8E4',
-  textSecondary:     palette.gray400,
-  textTertiary:      palette.gray500,
-  textInverse:       palette.gray900,
+  textPrimary:          '#f0f0f0',
+  textSecondary:        '#b0b4ba',
+  textTertiary:         '#999999',
+  textMuted:            '#666666',
+  textInverse:          '#171717',
+  textLink:             '#47c2ff',
+  textLinkSecondary:    '#476cff',
+  onDark:               '#ffffff',
+  onDarkSoft:           '#b0b4ba',
 
-  // Brand
-  primary:           palette.sageLight,
-  primaryDark:       palette.sage,
-  primaryLight:      '#C8E8DD',
-  secondary:         palette.coralLight,
-  secondaryDark:     palette.coral,
-  secondaryLight:    '#FFE8E0',
-  accent:            palette.yellowLight,
-  accentDark:        palette.yellow,
-  accentLight:       '#FFF3D0',
+  primary:              '#ffffff',
+  primaryActive:        '#e0e0e0',
 
-  // Semantic
-  danger:            palette.dangerLight,
-  dangerLight:       '#3D2020',
-  success:           palette.successLight,
-  successLight:      '#1D3028',
-  info:              palette.infoLight,
-  infoLight:         '#1D2A38',
+  danger:               '#eb8e90',
+  success:              '#16a34a',
+  warning:              '#ab6400',
+  preview:              '#8145b5',
 
-  // UI elements
-  border:            '#3A4048',
-  borderFocused:     palette.sageLight,
-  divider:           '#2D343C',
-  icon:              palette.gray400,
-  iconActive:        palette.sageLight,
-  placeholder:       palette.gray500,
-  overlay:           'rgba(0,0,0,0.6)',
+  border:               '#333333',
+  borderLight:          '#2a2a2a',
+  borderSoft:           '#222222',
+  divider:              '#2a2a2a',
+  icon:                 '#999999',
+  iconActive:           '#f0f0f0',
+  placeholder:          '#666666',
+  overlay:              'rgba(0,0,0,0.6)',
 
-  // Tab bar
-  tabBar:            '#1F262E',
-  tabBarBorder:      '#2D343C',
-  tabBarActive:      palette.sageLight,
-  tabBarInactive:    palette.gray500,
+  tabBar:               '#171717',
+  tabBarBorder:         '#2a2a2a',
+  tabBarActive:         '#f0f0f0',
+  tabBarInactive:       '#666666',
 
-  // Cards
-  cardBackground:    '#252C34',
-  cardBorder:        '#3A4048',
+  cardBackground:       '#1a1a1a',
+  cardBorder:           '#333333',
 
-  // Status bar
-  statusBar:         'light-content' as const,
+  gradientSkyLight:     '#1a2a3a',
+  gradientSkyMid:       '#0d1a2a',
+
+  statusBar:            'light-content' as const,
 } as const;
 
 export type ThemeColors = typeof lightColors | typeof darkColors;

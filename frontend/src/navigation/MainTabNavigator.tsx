@@ -1,14 +1,5 @@
-/**
- * BabyGuide PH — Main Tab Navigator
- *
- * Bottom tab navigation with 5 tabs:
- * Home | Symptom Checker | Disease Library | Community | Profile
- *
- * Each tab has its own stack navigator.
- */
-
 import React from 'react';
-import { StyleSheet, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,18 +14,26 @@ import type {
   ProfileStackParamList,
 } from './types';
 
-// ── Screens ────────────────────────────────────────────
 import { HomeScreen } from '../screens/home/HomeScreen';
+import { LibrarySearchScreen } from '../screens/library/LibrarySearchScreen';
+import { LibraryCategoryScreen } from '../screens/library/LibraryCategoryScreen';
+import { DiseaseDetailScreen } from '../screens/library/DiseaseDetailScreen';
 import {
-  CheckerIntroScreen,
-  LibrarySearchScreen,
   CommunityFeedScreen,
-  ProfileOverviewScreen,
   NotificationsScreen,
   EmergencyGuideScreen,
 } from '../screens/placeholders/PlaceholderScreens';
 
-// ── Stack Navigators ───────────────────────────────────
+import { CheckerIntroScreen } from '../screens/checker/CheckerIntroScreen';
+import { CheckerQuestionsScreen } from '../screens/checker/CheckerQuestionsScreen';
+import { CheckerVisualScreen } from '../screens/checker/CheckerVisualScreen';
+import { CheckerResultScreen } from '../screens/checker/CheckerResultScreen';
+
+import { ProfileOverviewScreen } from '../screens/profile/ProfileOverviewScreen';
+import { ParentProfileScreen } from '../screens/profile/ParentProfileScreen';
+import { BabyProfileScreen } from '../screens/profile/BabyProfileScreen';
+import { ProfileHistoryScreen } from '../screens/profile/ProfileHistoryScreen';
+
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 const CheckerStack = createNativeStackNavigator<CheckerStackParamList>();
 const LibraryStack = createNativeStackNavigator<LibraryStackParamList>();
@@ -55,6 +54,9 @@ function CheckerStackNavigator() {
   return (
     <CheckerStack.Navigator screenOptions={{ headerShown: false }}>
       <CheckerStack.Screen name="CheckerIntro" component={CheckerIntroScreen} />
+      <CheckerStack.Screen name="CheckerQuestions" component={CheckerQuestionsScreen} />
+      <CheckerStack.Screen name="CheckerVisual" component={CheckerVisualScreen} />
+      <CheckerStack.Screen name="CheckerResult" component={CheckerResultScreen} />
     </CheckerStack.Navigator>
   );
 }
@@ -63,6 +65,8 @@ function LibraryStackNavigator() {
   return (
     <LibraryStack.Navigator screenOptions={{ headerShown: false }}>
       <LibraryStack.Screen name="LibrarySearch" component={LibrarySearchScreen} />
+      <LibraryStack.Screen name="LibraryCategory" component={LibraryCategoryScreen} />
+      <LibraryStack.Screen name="DiseaseDetail" component={DiseaseDetailScreen} />
     </LibraryStack.Navigator>
   );
 }
@@ -79,11 +83,17 @@ function ProfileStackNavigator() {
   return (
     <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
       <ProfileStack.Screen name="ProfileOverview" component={ProfileOverviewScreen} />
+      <ProfileStack.Screen name="ParentProfile" component={ParentProfileScreen} />
+      <ProfileStack.Screen name="BabyProfile" component={BabyProfileScreen} />
+      <ProfileStack.Screen name="ProfileHistory" component={ProfileHistoryScreen} />
+      <ProfileStack.Screen name="MedicalHistory" component={NotificationsScreen} />
+      <ProfileStack.Screen name="VaccinationRecord" component={NotificationsScreen} />
+      <ProfileStack.Screen name="GrowthTracking" component={NotificationsScreen} />
+      <ProfileStack.Screen name="Settings" component={NotificationsScreen} />
     </ProfileStack.Navigator>
   );
 }
 
-// ── Bottom Tabs ────────────────────────────────────────
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 type TabIconName = React.ComponentProps<typeof Ionicons>['name'];
@@ -101,7 +111,7 @@ const tabConfig: Record<
 
 export function MainTabNavigator() {
   const { theme } = useTheme();
-  const { colors, shadows: s, typography: t } = theme;
+  const { colors } = theme;
 
   return (
     <Tab.Navigator
@@ -112,14 +122,13 @@ export function MainTabNavigator() {
         tabBarStyle: {
           backgroundColor: colors.tabBar,
           borderTopColor: colors.tabBarBorder,
-          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopWidth: 1,
           paddingBottom: Platform.OS === 'ios' ? 24 : 8,
           paddingTop: 8,
           height: Platform.OS === 'ios' ? 88 : 64,
-          ...s.navigation,
         },
         tabBarLabelStyle: {
-          fontFamily: t.caption.fontFamily,
+          fontFamily: 'Inter_400Regular',
           fontSize: 11,
           marginTop: 2,
         },
@@ -131,11 +140,7 @@ export function MainTabNavigator() {
         options={{
           tabBarLabel: tabConfig.HomeTab.label,
           tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={focused ? tabConfig.HomeTab.iconFocused : tabConfig.HomeTab.iconOutline}
-              size={size}
-              color={color}
-            />
+            <Ionicons name={focused ? tabConfig.HomeTab.iconFocused : tabConfig.HomeTab.iconOutline} size={size} color={color} />
           ),
         }}
       />
@@ -145,11 +150,7 @@ export function MainTabNavigator() {
         options={{
           tabBarLabel: tabConfig.CheckerTab.label,
           tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={focused ? tabConfig.CheckerTab.iconFocused : tabConfig.CheckerTab.iconOutline}
-              size={size}
-              color={color}
-            />
+            <Ionicons name={focused ? tabConfig.CheckerTab.iconFocused : tabConfig.CheckerTab.iconOutline} size={size} color={color} />
           ),
         }}
       />
@@ -159,11 +160,7 @@ export function MainTabNavigator() {
         options={{
           tabBarLabel: tabConfig.LibraryTab.label,
           tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={focused ? tabConfig.LibraryTab.iconFocused : tabConfig.LibraryTab.iconOutline}
-              size={size}
-              color={color}
-            />
+            <Ionicons name={focused ? tabConfig.LibraryTab.iconFocused : tabConfig.LibraryTab.iconOutline} size={size} color={color} />
           ),
         }}
       />
@@ -173,11 +170,7 @@ export function MainTabNavigator() {
         options={{
           tabBarLabel: tabConfig.CommunityTab.label,
           tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={focused ? tabConfig.CommunityTab.iconFocused : tabConfig.CommunityTab.iconOutline}
-              size={size}
-              color={color}
-            />
+            <Ionicons name={focused ? tabConfig.CommunityTab.iconFocused : tabConfig.CommunityTab.iconOutline} size={size} color={color} />
           ),
         }}
       />
@@ -187,11 +180,7 @@ export function MainTabNavigator() {
         options={{
           tabBarLabel: tabConfig.ProfileTab.label,
           tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={focused ? tabConfig.ProfileTab.iconFocused : tabConfig.ProfileTab.iconOutline}
-              size={size}
-              color={color}
-            />
+            <Ionicons name={focused ? tabConfig.ProfileTab.iconFocused : tabConfig.ProfileTab.iconOutline} size={size} color={color} />
           ),
         }}
       />

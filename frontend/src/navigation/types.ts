@@ -65,6 +65,7 @@ export type ProfileStackParamList = {
   ProfileOverview: undefined;
   ParentProfile: undefined;
   BabyProfile: { babyId?: string };
+  ProfileHistory: undefined;
   MedicalHistory: undefined;
   VaccinationRecord: undefined;
   GrowthTracking: { babyId: string };
@@ -92,3 +93,6 @@ export type CheckerScreenProps<T extends keyof CheckerStackParamList> =
 
 export type LibraryScreenProps<T extends keyof LibraryStackParamList> =
   NativeStackScreenProps<LibraryStackParamList, T>;
+
+export type ProfileScreenProps<T extends keyof ProfileStackParamList> =
+  NativeStackScreenProps<ProfileStackParamList, T>;
