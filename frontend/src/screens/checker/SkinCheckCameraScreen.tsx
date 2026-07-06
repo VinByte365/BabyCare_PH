@@ -18,6 +18,7 @@ import { useTheme } from '../../theme';
 import { Card, Button } from '../../components';
 import { useAuthStore } from '../../stores/authStore';
 import { logEvent } from '../../lib/analytics';
+import { API_BASE_URL } from '../../lib/apiConfig';
 import type { CheckerScreenProps, SkinConditionContent } from '../../navigation/types';
 
 interface PredictionResponse {
@@ -117,16 +118,12 @@ export function SkinCheckCameraScreen({ navigation, route }: CheckerScreenProps<
       } as any);
 
       const accessToken = useAuthStore.getState().accessToken;
-      const baseUrl = __DEV__
-        ? 'http://10.0.2.2:8000/api/v1'
-        : 'https://api.babyguide.ph/api/v1';
-      const url = `${baseUrl}/skin-check/predict?input_method=${inputMethod}&disclaimer_acknowledged=true`;
+      const url = `${API_BASE_URL}/skin-check/predict?input_method=${inputMethod}&disclaimer_acknowledged=true`;
 
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
-          'Content-Type': 'multipart/form-data',
         },
         body: formData,
       });

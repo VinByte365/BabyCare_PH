@@ -7,10 +7,9 @@
  */
 
 import { useAuthStore } from '../stores/authStore';
+import { API_BASE_URL } from './apiConfig';
 
-export const BASE_URL = __DEV__
-  ? 'http://192.168.100.114:8000/api/v1'
-  : 'https://api.babyguide.ph/api/v1';
+export const BASE_URL = API_BASE_URL;
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 

@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { Button, Card } from '../../components';
 import { useAuthStore } from '../../stores/authStore';
-import { api, BASE_URL } from '../../lib/api';
+import { BASE_URL } from '../../lib/api';
 import type { AuthScreenProps } from '../../navigation/types';
 
 export function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
@@ -25,7 +25,6 @@ export function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const setTokens = useAuthStore((s) => s.setTokens);
-  const setUser = useAuthStore((s) => s.setUser);
   const loadUserProfile = useAuthStore((s) => s.loadUserProfile);
 
   const handleLogin = async () => {
@@ -40,7 +39,7 @@ export function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
       formData.append('password', password);
 
       const tokenRes = await fetch(
-        `${__DEV__ ? `${BASE_URL}` : 'https://api.babyguide.ph/api/v1'}/auth/login`,
+        `${BASE_URL}/auth/login`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

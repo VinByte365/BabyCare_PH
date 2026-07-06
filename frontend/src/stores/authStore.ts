@@ -7,6 +7,7 @@
 import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
 import { api } from '../lib/api';
+import { API_BASE_URL } from '../lib/apiConfig';
 
 // ── Types ──────────────────────────────────────────────
 export type UserRole = 'parent' | 'professional';
@@ -67,9 +68,7 @@ function getSecureItem(key: string): Promise<string | null> {
   return withTimeout(SecureStore.getItemAsync(key), SECURE_STORE_TIMEOUT_MS);
 }
 
-const BASE_URL = __DEV__
-  ? 'http://10.0.2.2:8000/api/v1'
-  : 'https://api.babyguide.ph/api/v1';
+const BASE_URL = API_BASE_URL;
 
 export const useAuthStore = create<AuthState>((set, _get) => ({
   user: null,

@@ -11,6 +11,7 @@
 
 import os
 import logging
+from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status, Query
@@ -38,12 +39,8 @@ def get_model():
     global _model
     if _model is not None:
         return _model
-    # Locate model file relative to project root
-    model_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))),
-        "model",
-        "best.pt",
-    )
+    # Locate model file at the repository root: AppDev/model/best.pt.
+    model_path = Path(__file__).resolve().parents[5] / "model" / "best.pt"
     if not os.path.exists(model_path):
         logger.warning(f"Model not found at {model_path}. Inference will be unavailable.")
         return None
