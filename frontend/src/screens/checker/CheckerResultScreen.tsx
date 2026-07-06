@@ -154,11 +154,12 @@ export function CheckerResultScreen({ navigation, route }: CheckerScreenProps<'C
   }, []);
 
   const handleBackToHome = () => {
-    navigation.getParent()?.getParent()?.navigate('HomeTab');
+    navigation.reset({ index: 0, routes: [{ name: 'CheckerIntro' }] });
+    navigation.getParent()?.navigate('HomeTab', { screen: 'Home' });
   };
 
   const handleEmergencyAlert = () => {
-    navigation.getParent()?.getParent()?.navigate('HomeTab', { screen: 'EmergencyAlert' });
+    navigation.getParent()?.navigate('HomeTab', { screen: 'EmergencyAlert' });
   };
 
   return (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
@@ -13,9 +13,9 @@ export function CheckerIntroScreen({ navigation }: CheckerScreenProps<'CheckerIn
 
   type IconName = React.ComponentProps<typeof Ionicons>['name'];
   const steps: { icon: IconName; label: string }[] = [
-    { icon: 'clipboard-outline', label: 'Answer guided questions about your baby\'s symptoms' },
-    { icon: 'search-outline', label: 'Our engine cross-references known newborn conditions' },
-    { icon: 'document-text-outline', label: 'Receive preliminary assessment & care recommendations' },
+    { icon: 'clipboard-outline', label: 'Answer a short set of symptom questions' },
+    { icon: 'search-outline', label: 'Compare symptoms with newborn health patterns' },
+    { icon: 'document-text-outline', label: 'Review care guidance and escalation signs' },
   ];
 
   const handleStart = () => {
@@ -30,39 +30,39 @@ export function CheckerIntroScreen({ navigation }: CheckerScreenProps<'CheckerIn
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View style={{ alignItems: 'center', marginTop: spacing.xl, marginBottom: spacing.xl }}>
+        <View style={{ marginTop: spacing.xl, marginBottom: spacing.lg }}>
           <View
             style={{
-              width: 88,
-              height: 88,
-              borderRadius: radii.xl,
+              width: 48,
+              height: 48,
+              borderRadius: radii.md,
               backgroundColor: colors.surfaceStrong,
               alignItems: 'center',
               justifyContent: 'center',
-              marginBottom: spacing.base,
+              marginBottom: spacing.md,
             }}
           >
-            <Ionicons name="medkit-outline" size={44} color={colors.iconActive} />
+            <Ionicons name="medkit-outline" size={24} color={colors.iconActive} />
           </View>
-          <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 28, lineHeight: 34, color: colors.textPrimary, textAlign: 'center' }}>
+          <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 28, lineHeight: 34, color: colors.textPrimary }}>
             Symptom Checker
           </Text>
-          <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 14, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs, paddingHorizontal: spacing.lg }}>
-            A guided assessment tool for newborn symptoms. This is an educational aid and does not replace professional medical advice.
+          <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 16, lineHeight: 24, color: colors.textSecondary, marginTop: spacing.xs }}>
+            A calm, guided check for newborn symptoms with clear next steps. It supports your judgment and does not replace a pediatrician.
           </Text>
         </View>
 
         {/* How it works */}
-        <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 18, lineHeight: 25, color: colors.textPrimary, marginBottom: spacing.sm }}>
+        <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 11, lineHeight: 16, letterSpacing: 0.88, textTransform: 'uppercase', color: colors.textTertiary, marginBottom: spacing.sm }}>
           How it works
         </Text>
 
         {steps.map((step, idx) => (
-          <Card key={idx} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm }}>
+          <Card key={idx} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm, padding: spacing.md }}>
             <View
               style={{
-                width: 40,
-                height: 40,
+                width: 36,
+                height: 36,
                 borderRadius: radii.md,
                 backgroundColor: colors.surfaceStrong,
                 alignItems: 'center',
@@ -70,20 +70,26 @@ export function CheckerIntroScreen({ navigation }: CheckerScreenProps<'CheckerIn
                 marginRight: spacing.sm,
               }}
             >
-              <Ionicons name={step.icon} size={20} color={colors.iconActive} />
+              <Ionicons name={step.icon} size={18} color={colors.iconActive} />
             </View>
-            <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 14, color: colors.textPrimary, flex: 1, lineHeight: 20 }}>
-              {step.label}
-            </Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontFamily: 'JetBrainsMono_400Regular', fontSize: 12, lineHeight: 18, color: colors.textTertiary, marginBottom: 1 }}>
+                0{idx + 1}
+              </Text>
+              <Text style={{ fontFamily: 'Inter_500Medium', fontSize: 14, color: colors.textPrimary, lineHeight: 20 }}>
+                {step.label}
+              </Text>
+            </View>
           </Card>
         ))}
 
         {/* Disclaimer */}
         <Card
           style={{
-            marginTop: spacing.md,
+            marginTop: spacing.sm,
             marginBottom: spacing.lg,
             backgroundColor: colors.backgroundSecondary,
+            padding: spacing.md,
           }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
@@ -96,11 +102,12 @@ export function CheckerIntroScreen({ navigation }: CheckerScreenProps<'CheckerIn
 
         {/* Skin Check option */}
         <Card
+          onPress={() => navigation.navigate('SkinCheckIntro')}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
             marginBottom: spacing.md,
-            backgroundColor: colors.backgroundSecondary,
+            padding: spacing.md,
           }}
         >
           <View
@@ -114,28 +121,17 @@ export function CheckerIntroScreen({ navigation }: CheckerScreenProps<'CheckerIn
               marginRight: spacing.sm,
             }}
           >
-            <Ionicons name="color-palette-outline" size={24} color={colors.iconActive} />
+            <Ionicons name="scan-outline" size={24} color={colors.iconActive} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 15, color: colors.textPrimary }}>
               AI Skin Check
             </Text>
             <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 13, color: colors.textSecondary, lineHeight: 18 }}>
-              Use the camera to screen for skin conditions like Measles, Heat Rash, and Chickenpox
+              Camera-assisted screening for visible skin concerns
             </Text>
           </View>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('SkinCheckIntro')}
-            style={{
-              height: 44,
-              paddingHorizontal: 14,
-              justifyContent: 'center',
-            }}
-            accessibilityRole="button"
-            accessibilityLabel="Open AI Skin Check"
-          >
-            <Ionicons name="chevron-forward" size={22} color={colors.iconActive} />
-          </TouchableOpacity>
+          <Ionicons name="chevron-forward" size={22} color={colors.iconActive} />
         </Card>
 
         {/* Start Button */}

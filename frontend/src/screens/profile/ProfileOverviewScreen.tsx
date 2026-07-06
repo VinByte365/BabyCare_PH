@@ -62,11 +62,7 @@ export function ProfileOverviewScreen({ navigation }: any) {
           label: 'History',
           onPress: () => navigation.navigate('ProfileHistory'),
         },
-        {
-          icon: 'settings-outline',
-          label: 'Settings',
-          onPress: () => navigation.navigate('Settings'),
-        },
+        
       ],
     },
     {
