@@ -27,7 +27,11 @@ export type EventName =
   | 'community_comment_added'
   | 'library_search'
   | 'profile_updated'
-  | 'app_opened';
+  | 'app_opened'
+  | 'skin_check_started'
+  | 'skin_check_completed'
+  | 'skin_check_low_confidence'
+  | 'skin_check_emergency';
 
 export interface AnalyticsEvent {
   name: EventName;

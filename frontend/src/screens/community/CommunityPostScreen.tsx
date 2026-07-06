@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,44 +6,82 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { Card, Badge, Button } from '../../components';
 import type { CommunityScreenProps } from '../../navigation/types';
-import {
-  getCommunityPost,
-  getCategoryLabel,
-} from '../../lib/communityData';
+import { getCategoryLabel } from '../../lib/communityData';
 import { logEvent } from '../../lib/analytics';
 import { useNetworkStore } from '../../lib/networkStore';
 import { enqueueAction } from '../../lib/offlineQueue';
+import { api } from '../../lib/api';
+
+interface CommentUser {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+  role: string;
+  verified: boolean;
+}
+
+interface CommentData {
+  id: string;
+  post_id: string;
+  user: CommentUser;
+  body: string;
+  likes_count: number;
+  created_at: string;
+}
+
+interface PostDetail {
+  id: string;
+  user: CommentUser;
+  title: string;
+  body: string;
+  category: string;
+  created_at: string;
+  comment_count: number;
+  likes_count: number;
+  is_pinned: boolean;
+  is_reviewed: boolean;
+  liked_by_current_user: boolean;
+  comments: CommentData[];
+}
 
 export function CommunityPostScreen({ navigation, route }: CommunityScreenProps<'CommunityPost'>) {
   const { theme } = useTheme();
   const { colors, spacing, radii } = theme;
   const { postId } = route.params;
-  const post = getCommunityPost(postId);
+  const [post, setPost] = useState<PostDetail | null>(null);
+  const [loading, setLoading] = useState(true);
   const [commentText, setCommentText] = useState('');
-  const [localComments, setLocalComments] = useState(post?.comments ?? []);
+  const [comments, setComments] = useState<CommentData[]>([]);
+  const [sending, setSending] = useState(false);
   const isConnected = useNetworkStore((s) => s.isConnected);
 
-  if (!post) {
-    return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
-        <Ionicons name="alert-circle-outline" size={48} color={colors.icon} />
-        <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 16, color: colors.textSecondary, marginTop: spacing.sm }}>
-          Post not found
-        </Text>
-        <Button title="Go Back" onPress={() => navigation.goBack()} variant="secondary" size="sm" style={{ marginTop: spacing.base }} />
-      </SafeAreaView>
-    );
-  }
+  useEffect(() => {
+    fetchPost();
+  }, [postId]);
 
-  const handleAddComment = () => {
+  const fetchPost = async () => {
+    setLoading(true);
+    try {
+      const data = await api.get<PostDetail>(`/posts/${postId}`);
+      setPost(data);
+      setComments(data.comments || []);
+    } catch {
+      setPost(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddComment = async () => {
     const trimmed = commentText.trim();
-    if (!trimmed) return;
+    if (!trimmed || !post) return;
 
     logEvent('community_comment_added', { postId: post.id }).catch(() => {});
 
@@ -57,24 +95,37 @@ export function CommunityPostScreen({ navigation, route }: CommunityScreenProps<
       return;
     }
 
-    const newComment = {
-      id: `c_local_${Date.now()}`,
-      postId: post.id,
-      userId: 'local_user',
-      user: {
-        id: 'local_user',
-        name: 'You',
-        role: 'parent' as const,
-        verified: false,
-      },
-      body: trimmed,
-      createdAt: new Date().toISOString(),
-      likes: 0,
-    };
-
-    setLocalComments([...localComments, newComment]);
-    setCommentText('');
+    setSending(true);
+    try {
+      const created = await api.post<CommentData>(`/posts/${post.id}/comments`, { body: trimmed });
+      setComments((prev) => [...prev, created]);
+      setCommentText('');
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'Failed to post comment. Please try again.');
+    } finally {
+      setSending(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </SafeAreaView>
+    );
+  }
+
+  if (!post) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
+        <Ionicons name="alert-circle-outline" size={48} color={colors.icon} />
+        <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 16, color: colors.textSecondary, marginTop: spacing.sm }}>
+          Post not found
+        </Text>
+        <Button title="Go Back" onPress={() => navigation.goBack()} variant="secondary" size="sm" style={{ marginTop: spacing.base }} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
@@ -119,10 +170,10 @@ export function CommunityPostScreen({ navigation, route }: CommunityScreenProps<
                 )}
               </View>
               <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 12, color: colors.textTertiary }}>
-                {new Date(post.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}
+                {new Date(post.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}
               </Text>
             </View>
-            <Badge label={getCategoryLabel(post.category)} variant="info" />
+            <Badge label={getCategoryLabel(post.category as any)} variant="info" />
           </View>
 
           <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 18, color: colors.textPrimary, marginBottom: spacing.sm }}>
@@ -132,7 +183,7 @@ export function CommunityPostScreen({ navigation, route }: CommunityScreenProps<
             {post.body}
           </Text>
 
-          {post.isReviewed && (
+          {post.is_reviewed && (
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: spacing.sm, paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.divider }}>
               <Ionicons name="shield-checkmark" size={16} color={colors.success} style={{ marginRight: 6 }} />
               <Text style={{ fontFamily: 'Inter_500Medium', fontSize: 12, color: colors.success }}>
@@ -145,10 +196,10 @@ export function CommunityPostScreen({ navigation, route }: CommunityScreenProps<
         {/* Comments Section */}
         <View style={{ paddingHorizontal: spacing.base }}>
           <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 16, color: colors.textPrimary, marginBottom: spacing.sm }}>
-            Comments ({localComments.length})
+            Comments ({comments.length})
           </Text>
 
-          {localComments.map((comment) => (
+          {comments.map((comment) => (
             <Card key={comment.id} style={{ marginBottom: spacing.sm }}>
               <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
                 <View
@@ -182,7 +233,7 @@ export function CommunityPostScreen({ navigation, route }: CommunityScreenProps<
                     {comment.body}
                   </Text>
                   <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 11, color: colors.textTertiary }}>
-                    {new Date(comment.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })}
+                    {new Date(comment.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })}
                   </Text>
                 </View>
               </View>
@@ -190,13 +241,7 @@ export function CommunityPostScreen({ navigation, route }: CommunityScreenProps<
           ))}
 
           {/* Add Comment */}
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'flex-end',
-              marginTop: spacing.sm,
-            }}
-          >
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: spacing.sm }}>
             <TextInput
               placeholder="Add a comment..."
               placeholderTextColor={colors.placeholder}
@@ -221,21 +266,25 @@ export function CommunityPostScreen({ navigation, route }: CommunityScreenProps<
             />
             <TouchableOpacity
               onPress={handleAddComment}
-              disabled={!commentText.trim()}
+              disabled={!commentText.trim() || sending}
               style={{
                 width: 44,
                 height: 44,
                 borderRadius: radii.md,
-                backgroundColor: commentText.trim() ? colors.primary : colors.surfaceStrong,
+                backgroundColor: commentText.trim() && !sending ? colors.primary : colors.surfaceStrong,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Ionicons
-                name="send"
-                size={18}
-                color={commentText.trim() ? colors.textInverse : colors.textTertiary}
-              />
+              {sending ? (
+                <ActivityIndicator size="small" color={colors.textInverse} />
+              ) : (
+                <Ionicons
+                  name="send"
+                  size={18}
+                  color={commentText.trim() ? colors.textInverse : colors.textTertiary}
+                />
+              )}
             </TouchableOpacity>
           </View>
         </View>

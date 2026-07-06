@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
@@ -92,6 +92,50 @@ export function CheckerIntroScreen({ navigation }: CheckerScreenProps<'CheckerIn
               This tool provides preliminary guidance only. Always consult a licensed pediatrician for medical decisions. In emergencies, call emergency services immediately.
             </Text>
           </View>
+        </Card>
+
+        {/* Skin Check option */}
+        <Card
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: spacing.md,
+            backgroundColor: colors.backgroundSecondary,
+          }}
+        >
+          <View
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: radii.md,
+              backgroundColor: colors.surfaceStrong,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginRight: spacing.sm,
+            }}
+          >
+            <Ionicons name="color-palette-outline" size={24} color={colors.iconActive} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 15, color: colors.textPrimary }}>
+              AI Skin Check
+            </Text>
+            <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 13, color: colors.textSecondary, lineHeight: 18 }}>
+              Use the camera to screen for skin conditions like Measles, Heat Rash, and Chickenpox
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('SkinCheckIntro')}
+            style={{
+              height: 44,
+              paddingHorizontal: 14,
+              justifyContent: 'center',
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Open AI Skin Check"
+          >
+            <Ionicons name="chevron-forward" size={22} color={colors.iconActive} />
+          </TouchableOpacity>
         </Card>
 
         {/* Start Button */}

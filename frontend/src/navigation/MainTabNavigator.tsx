@@ -34,6 +34,9 @@ import { CheckerIntroScreen } from '../screens/checker/CheckerIntroScreen';
 import { CheckerQuestionsScreen } from '../screens/checker/CheckerQuestionsScreen';
 import { CheckerVisualScreen } from '../screens/checker/CheckerVisualScreen';
 import { CheckerResultScreen } from '../screens/checker/CheckerResultScreen';
+import { SkinCheckIntroScreen } from '../screens/checker/SkinCheckIntroScreen';
+import { SkinCheckCameraScreen } from '../screens/checker/SkinCheckCameraScreen';
+import { SkinCheckResultScreen } from '../screens/checker/SkinCheckResultScreen';
 
 import { ProfileOverviewScreen } from '../screens/profile/ProfileOverviewScreen';
 import { ParentProfileScreen } from '../screens/profile/ParentProfileScreen';
@@ -66,6 +69,9 @@ function CheckerStackNavigator() {
       <CheckerStack.Screen name="CheckerQuestions" component={CheckerQuestionsScreen} />
       <CheckerStack.Screen name="CheckerVisual" component={CheckerVisualScreen} />
       <CheckerStack.Screen name="CheckerResult" component={CheckerResultScreen} />
+      <CheckerStack.Screen name="SkinCheckIntro" component={SkinCheckIntroScreen} />
+      <CheckerStack.Screen name="SkinCheckCamera" component={SkinCheckCameraScreen} />
+      <CheckerStack.Screen name="SkinCheckResult" component={SkinCheckResultScreen} />
     </CheckerStack.Navigator>
   );
 }

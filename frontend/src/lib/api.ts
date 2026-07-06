@@ -3,12 +3,13 @@
  *
  * Centralized HTTP client for all backend requests.
  * Automatically attaches auth token from the store.
+ * Handles 401 responses by attempting a token refresh.
  */
 
 import { useAuthStore } from '../stores/authStore';
 
 const BASE_URL = __DEV__
-  ? 'http://10.0.2.2:8000/api/v1'  // Android emulator → localhost
+  ? 'http://10.0.2.2:8000/api/v1'
   : 'https://api.babyguide.ph/api/v1';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -33,6 +34,42 @@ class ApiError extends Error {
   }
 }
 
+// ── Token refresh state ──────────────────────────────────
+
+let refreshPromise: Promise<string | null> | null = null;
+
+async function attemptTokenRefresh(): Promise<string | null> {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async () => {
+    try {
+      const store = useAuthStore.getState();
+      const token = store.refreshToken;
+      if (!token) return null;
+
+      const response = await fetch(`${BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: token }),
+      });
+
+      if (!response.ok) return null;
+
+      const data = await response.json();
+      await store.setTokens(data.access_token, data.refresh_token);
+      return data.access_token;
+    } catch {
+      return null;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+}
+
+// ── Core request function ────────────────────────────────
+
 export async function apiRequest<T = unknown>(
   endpoint: string,
   options: RequestOptions = {},
@@ -54,11 +91,32 @@ export async function apiRequest<T = unknown>(
 
   const url = `${BASE_URL}${endpoint}`;
 
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     method,
     headers: requestHeaders,
     body: body ? JSON.stringify(body) : undefined,
   });
+
+  // ── 401 → attempt token refresh, then retry once ──────
+  if (response.status === 401 && !skipAuth) {
+    const newToken = await attemptTokenRefresh();
+
+    if (newToken) {
+      requestHeaders['Authorization'] = `Bearer ${newToken}`;
+      response = await fetch(url, {
+        method,
+        headers: requestHeaders,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+    } else {
+      // Refresh failed — clear session
+      await useAuthStore.getState().logout();
+      throw new ApiError(
+        401,
+        'Session expired. Please log in again.',
+      );
+    }
+  }
 
   if (!response.ok) {
     let errorData: unknown;
@@ -74,7 +132,6 @@ export async function apiRequest<T = unknown>(
     );
   }
 
-  // Handle 204 No Content
   if (response.status === 204) {
     return undefined as unknown as T;
   }

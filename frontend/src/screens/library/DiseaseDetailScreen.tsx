@@ -9,6 +9,7 @@ import { getDiseaseLibraryEntry, getCategoryDisplayName } from '../../lib/diseas
 import { getSymptomById } from '../../lib/symptomEngine';
 import { getCareGuidesByDisease } from '../../lib/careGuidance';
 import { logEvent } from '../../lib/analytics';
+import { useBookmarkStore } from '../../lib/bookmarkStore';
 
 type AccordionSection = 'overview' | 'symptoms' | 'causes' | 'treatment' | 'prevention' | 'seekingCare' | 'faq';
 
@@ -77,6 +78,8 @@ export function DiseaseDetailScreen({ navigation, route }: LibraryScreenProps<'D
 
   const severity = severityConfig[disease.severity];
   const resolvedSymptoms = disease.symptoms.map((sid) => getSymptomById(sid)).filter(Boolean);
+  const isBookmarked = useBookmarkStore((s) => s.isBookmarked(disease.id));
+  const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
 
   useEffect(() => {
     logEvent('disease_viewed', { diseaseId: disease.id, diseaseName: disease.name }).catch(() => {});
@@ -86,9 +89,21 @@ export function DiseaseDetailScreen({ navigation, route }: LibraryScreenProps<'D
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl }} showsVerticalScrollIndicator={false}>
         {/* Back Button + Header */}
-        <View style={{ paddingHorizontal: spacing.base, paddingTop: spacing.sm, paddingBottom: spacing.md }}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: spacing.sm, alignSelf: 'flex-start' }} hitSlop={8}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.base, paddingTop: spacing.sm, paddingBottom: spacing.md }}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ height: 44, width: 44, justifyContent: 'center' }} hitSlop={8}>
             <Ionicons name="arrow-back" size={24} color={colors.iconActive} />
+          </TouchableOpacity>
+          <View style={{ flex: 1 }} />
+          <TouchableOpacity
+            onPress={() => toggleBookmark({ id: disease.id, type: 'disease', title: disease.name })}
+            style={{ height: 44, width: 44, justifyContent: 'center', alignItems: 'center' }}
+            hitSlop={8}
+          >
+            <Ionicons
+              name={isBookmarked ? 'bookmark' : 'bookmark-outline'}
+              size={24}
+              color={isBookmarked ? colors.primary : colors.iconActive}
+            />
           </TouchableOpacity>
         </View>
 

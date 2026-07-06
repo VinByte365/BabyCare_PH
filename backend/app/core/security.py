@@ -2,6 +2,8 @@
  * BabyGuide PH — Security Helpers
 """
 
+import secrets
+import hashlib
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional, Union
 from jose import jwt
@@ -28,3 +30,17 @@ def create_access_token(
     to_encode = {"exp": expire, "sub": str(subject)}
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
+
+
+def generate_refresh_token() -> str:
+    """Generate a cryptographically secure random refresh token."""
+    return secrets.token_urlsafe(64)
+
+
+def hash_token(token: str) -> str:
+    """Return the SHA-256 hex digest of a token for DB storage."""
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def get_refresh_token_expiry() -> datetime:
+    return datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)

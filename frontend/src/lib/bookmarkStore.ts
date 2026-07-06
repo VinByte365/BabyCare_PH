@@ -1,12 +1,6 @@
-/**
- * BabyGuide PH — Bookmark Store (Zustand + AsyncStorage)
- *
- * Persists user bookmarks for care guidance articles and disease entries.
- * Used by the Care Guidance detail view and referenced by Profile history.
- */
-
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { api } from './api';
 
 const BOOKMARK_STORAGE_KEY = '@babyguide_bookmarks';
 
@@ -38,6 +32,19 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
       } else {
         set({ isLoading: false });
       }
+
+      api.get<{ id: string; item_id: string; item_type: string; title: string | null; created_at: string }[]>('/bookmarks/')
+        .then((serverBookmarks) => {
+          const merged: Bookmark[] = serverBookmarks.map((b) => ({
+            id: b.item_id,
+            type: b.item_type as Bookmark['type'],
+            title: b.title || '',
+            savedAt: b.created_at,
+          }));
+          set({ bookmarks: merged });
+          AsyncStorage.setItem(BOOKMARK_STORAGE_KEY, JSON.stringify(merged)).catch(() => {});
+        })
+        .catch(() => {});
     } catch {
       set({ isLoading: false });
     }
@@ -58,10 +65,19 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
     }
 
     set({ bookmarks: updated });
+
     try {
       await AsyncStorage.setItem(BOOKMARK_STORAGE_KEY, JSON.stringify(updated));
-    } catch {
-      // Silently fail — bookmark state is still correct in memory
+    } catch {}
+
+    if (existingIndex >= 0) {
+      api.delete(`/bookmarks/${item.id}?item_type=${item.type}`).catch(() => {});
+    } else {
+      api.post('/bookmarks/', {
+        item_id: item.id,
+        item_type: item.type,
+        title: item.title,
+      }).catch(() => {});
     }
   },
 
@@ -73,8 +89,6 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
     set({ bookmarks: [] });
     try {
       await AsyncStorage.removeItem(BOOKMARK_STORAGE_KEY);
-    } catch {
-      // Silently fail
-    }
+    } catch {}
   },
 }));

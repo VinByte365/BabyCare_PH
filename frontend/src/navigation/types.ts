@@ -46,7 +46,17 @@ export type CheckerStackParamList = {
   CheckerIntro: undefined;
   CheckerQuestions: { sessionId: string };
   CheckerVisual: { sessionId: string };
-  CheckerResult: { sessionId: string };
+  CheckerResult: { sessionId: string; symptomIds?: string[] };
+  SkinCheckIntro: undefined;
+  SkinCheckCamera: { inputMethod: 'camera' | 'gallery' };
+  SkinCheckResult: {
+    sessionId?: string;
+    detectedClass?: string;
+    confidence?: number;
+    conditionContent?: SkinConditionContent | null;
+    predicted: boolean;
+    message?: string;
+  };
 };
 
 // ── Library Stack ──────────────────────────────────────
@@ -74,6 +84,17 @@ export type ProfileStackParamList = {
   GrowthTracking: { babyId: string };
   Settings: undefined;
 };
+
+// ── Skin Check Types ──────────────────────────────────
+export interface SkinConditionContent {
+  name: string;
+  description: string;
+  severity: string;
+  recommendation: string;
+  when_to_seek_care: string;
+  home_care: string;
+  disclaimer: string;
+}
 
 // ── Screen Props helpers ───────────────────────────────
 export type RootStackScreenProps<T extends keyof RootStackParamList> =

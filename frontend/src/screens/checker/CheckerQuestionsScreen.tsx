@@ -65,8 +65,8 @@ export function CheckerQuestionsScreen({ navigation, route }: CheckerScreenProps
 
   const handleNext = () => {
     if (isLastStep) {
-      const { results, isEmergency } = assessSymptoms(Array.from(selectedSymptoms));
-      navigation.navigate('CheckerResult', { sessionId });
+      const symptomIds = Array.from(selectedSymptoms);
+      navigation.navigate('CheckerResult', { sessionId, symptomIds });
     } else {
       setCurrentStep((prev) => prev + 1);
     }

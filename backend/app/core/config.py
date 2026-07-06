@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: str = "supersecretkeychangeinproduction1234567890"  # Override in .env
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     ALGORITHM: str = "HS256"
     
     # Database

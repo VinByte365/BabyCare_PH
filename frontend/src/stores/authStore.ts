@@ -6,6 +6,7 @@
 
 import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
+import { api } from '../lib/api';
 
 // ── Types ──────────────────────────────────────────────
 export type UserRole = 'parent' | 'professional';
@@ -22,7 +23,7 @@ export interface User {
 export interface Baby {
   id: string;
   name: string;
-  dateOfBirth: string; // ISO 8601
+  dateOfBirth: string;
   sex: 'male' | 'female';
   avatarUrl?: string;
 }
@@ -35,7 +36,6 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
 
-  // Actions
   setTokens: (access: string, refresh: string) => Promise<void>;
   setUser: (user: User) => void;
   updateUser: (updates: Partial<User>) => void;
@@ -45,6 +45,9 @@ interface AuthState {
   removeBaby: (babyId: string) => void;
   logout: () => Promise<void>;
   loadStoredAuth: () => Promise<void>;
+  loadUserProfile: () => Promise<void>;
+  fetchBabies: () => Promise<void>;
+  refreshAccessToken: () => Promise<string | null>;
 }
 
 const ACCESS_TOKEN_KEY = 'babyguide_access_token';
@@ -63,6 +66,10 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T
 function getSecureItem(key: string): Promise<string | null> {
   return withTimeout(SecureStore.getItemAsync(key), SECURE_STORE_TIMEOUT_MS);
 }
+
+const BASE_URL = __DEV__
+  ? 'http://10.0.2.2:8000/api/v1'
+  : 'https://api.babyguide.ph/api/v1';
 
 export const useAuthStore = create<AuthState>((set, _get) => ({
   user: null,
@@ -103,6 +110,22 @@ export const useAuthStore = create<AuthState>((set, _get) => ({
     })),
 
   logout: async () => {
+    const state = _get();
+    const token = state.refreshToken;
+
+    // Best-effort backend logout
+    if (token) {
+      try {
+        await fetch(`${BASE_URL}/auth/logout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: token }),
+        });
+      } catch {
+        // Ignore network errors
+      }
+    }
+
     await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
     await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
     set({
@@ -129,6 +152,22 @@ export const useAuthStore = create<AuthState>((set, _get) => ({
           isAuthenticated: true,
           isLoading: false,
         });
+
+        // Validate session — try profile, refresh on 401
+        try {
+          await _get().loadUserProfile();
+        } catch {
+          const newAccess = await _get().refreshAccessToken();
+          if (newAccess) {
+            try {
+              await _get().loadUserProfile();
+            } catch {
+              await _get().logout();
+            }
+          } else {
+            await _get().logout();
+          }
+        }
       } else {
         set({
           accessToken: null,
@@ -146,4 +185,74 @@ export const useAuthStore = create<AuthState>((set, _get) => ({
       });
     }
   },
+
+  loadUserProfile: async () => {
+    const userData = await api.get<{
+      id: string;
+      email: string;
+      first_name: string;
+      last_name: string;
+      role: string;
+      is_active: boolean;
+      created_at: string;
+    }>('/auth/me');
+    set({
+      user: {
+        id: userData.id,
+        email: userData.email,
+        firstName: userData.first_name,
+        lastName: userData.last_name,
+        role: userData.role as UserRole,
+      },
+    });
+  },
+
+  refreshAccessToken: async () => {
+    const state = _get();
+    const token = state.refreshToken;
+    if (!token) return null;
+
+    try {
+      const response = await fetch(`${BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: token }),
+      });
+
+      if (!response.ok) return null;
+
+      const data = await response.json();
+      await _get().setTokens(data.access_token, data.refresh_token);
+      return data.access_token;
+    } catch {
+      return null;
+    }
+  },
+
+  fetchBabies: async () => {
+    try {
+      const babyData = await api.get<Array<{
+        id: string;
+        name: string;
+        date_of_birth: string;
+        sex: string;
+        parent_id: string;
+        created_at: string;
+      }>>('/babies');
+      set({
+        babies: babyData.map((b) => ({
+          id: b.id,
+          name: b.name,
+          dateOfBirth: b.date_of_birth,
+          sex: b.sex as 'male' | 'female',
+        })),
+      });
+    } catch {
+      // Silently fail
+    }
+  },
 }));
+
+function _get(): AuthState {
+  return useAuthStore.getState();
+}

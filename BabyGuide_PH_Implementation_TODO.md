@@ -9,7 +9,7 @@ expo init BabyGuidePH
 npx expo install @react-navigation/native @react-navigation/bottom-tabs
 npx expo install react-native-reanimated react-native-gesture-handler
 npx expo install lottie-react-native expo-haptics expo-font expo-splash-screen
-npx expo install @expo/vector-icons expo-linking expo-image-picker
+npx expo install @expo/vector-icons expo-linking expo-image-picker expo-camera
 npx expo install expo-secure-store @react-native-async-storage/async-storage
 npx expo install @react-native-community/datetimepicker
 ```
@@ -58,7 +58,8 @@ npx expo install @react-native-community/datetimepicker
 
 ## 4. Symptom Checker Module
 - [ ] Design and build decision-tree data structure/algorithm logic (backend or local JS logic)
-- [ ] Build multi-step guided form UI with stepper/progress indicator component
+- [ ] Define Symptom Checker entry flow with two core assessment paths: questionnaire-based symptom assessment and Computer Vision-based skin disease screening
+- [ ] Build multi-step guided questionnaire UI with stepper/progress indicator component
 - [ ] Build symptom selection screen using large touch-friendly chips/checkboxes
 - [ ] Animate progress bar fill on step completion (`reanimated`)
 - [ ] Add scale/bounce micro-interaction + haptic feedback (`expo-haptics`) on chip selection
@@ -67,11 +68,33 @@ npx expo install @react-native-community/datetimepicker
 - [ ] Add conditional routing: trigger Emergency Alert Module if symptoms match urgent criteria
 - [ ] Log each symptom check session to Analytics Module (anonymized)
 
+### 4.1 Computer Vision-Based Skin Disease Detection
+- [ ] Add a Skin Check option inside the Symptom Checker that clearly uses the phone's camera/image library for image-based skin disease screening
+- [ ] Support two image input methods:
+  - [ ] Upload Image: allow the user to upload an existing photo of the baby's skin from their device using `expo-image-picker`
+  - [ ] Live Camera: allow the user to capture a real-time skin image using the phone's camera via `expo-camera`
+- [ ] Add camera/gallery permission prompts with calm, parent-friendly copy and graceful denied-permission states
+- [ ] Build an image capture/upload screen with clear framing guidance: good lighting, affected skin area fully visible, avoid blurry or distant photos
+- [ ] Define model integration architecture for image classification, using either an on-device model bundle or a backend inference endpoint depending on performance, model size, privacy, and offline requirements
+- [ ] Ensure the model classifies submitted skin images into exactly these classes: Measles, Heat Rash, Chickenpox, Eczema, Normal Skin
+- [ ] Map each class to parent-friendly display content: detected skin condition, brief description, when to monitor, and when to seek professional care
+- [ ] Implement confidence threshold logic:
+  - [ ] If the highest prediction confidence is 30% or greater, display the prediction and associated information
+  - [ ] If the highest prediction confidence is below 30%, discard the prediction completely and do not show the low-confidence class
+  - [ ] For low-confidence results, display: "Unable to detect the skin condition. Please try again using a clearer image with good lighting and ensure the affected skin area is fully visible."
+  - [ ] Allow the user to immediately retake the photo or upload another image after a low-confidence result
+- [ ] Build Skin Check Results screen that displays the detected skin condition, model confidence score, brief description, medical disclaimer, and recommendation to consult a healthcare professional if symptoms persist or there are concerns
+- [ ] Include disclaimer text stating that the prediction is intended only as a screening tool and is not a medical diagnosis
+- [ ] Route urgent or concerning skin result content to the Emergency Alert Module or care escalation guidance where appropriate, without presenting the model output as a definitive diagnosis
+- [ ] Save Skin Check sessions to Profile History with timestamp, input method, detected class when confidence is at least 30%, confidence score, and disclaimer acknowledgement; avoid storing raw images unless explicitly required and consented to
+- [ ] Log anonymized Skin Check analytics events, including input method, confidence bucket, threshold pass/fail, and result class only when confidence is at least 30%
+
 ## 5. Disease and Symptom Database / Information Module
 - [ ] Set up backend/database schema for diseases (symptoms, causes, treatment, prevention, when-to-seek-care fields)
 - [ ] Build searchable list UI with sticky search bar in screen header
 - [ ] Add filter chips by category (e.g., skin, respiratory, digestive)
 - [ ] Build expandable accordion cards for disease detail view
+- [ ] Add reviewed skin-condition content entries for Measles, Heat Rash, Chickenpox, Eczema, and Normal Skin descriptions used by the Skin Check result screen
 - [ ] Implement admin/content-reviewer interface (web or in-app) for Medical Content Review Panel to add/edit/validate entries
 - [ ] Cache database locally (e.g., SQLite via `expo-sqlite` or bundled JSON) to support offline access
 - [ ] Add empty-state Lottie illustration for no search results
@@ -101,7 +124,7 @@ npx expo install @react-native-community/datetimepicker
 
 ## 9. User Interaction Logging / Analytics Module
 - [ ] Define anonymized event schema (feature used, timestamp, session duration, no PII)
-- [ ] Implement event logging calls across Symptom Checker, Disease Info, Care Guidance, Emergency, Community modules
+- [ ] Implement event logging calls across Symptom Checker questionnaire flow, Skin Check image flow, Disease Info, Care Guidance, Emergency, Community modules
 - [ ] Set up aggregated analytics storage/database (backend)
 - [ ] Build internal reporting/dashboard (admin-facing, separate from parent-facing UI) for usage pattern review
 
@@ -109,12 +132,15 @@ npx expo install @react-native-community/datetimepicker
 - [ ] Bundle/cache Disease & Symptom Database locally for offline browsing
 - [ ] Implement offline detection (`expo-network` or `NetInfo`) with graceful UI messaging
 - [ ] Queue Community/Analytics actions locally and sync when connection resumes
+- [ ] Define Skin Check offline behavior based on model architecture: if on-device inference is available, allow image screening offline; if backend inference is required, show a clear offline message and allow retry when connection returns
 - [ ] Add offline-state banner/toast using theme-consistent styling (no harsh red unless truly an error)
 
 ## 11. Security and Privacy Compliance
 - [ ] Encrypt sensitive local storage via `expo-secure-store`
 - [ ] Implement HTTPS-only API communication
 - [ ] Add in-app privacy policy and medical-disclaimer screens (shown at onboarding, accessible from Profile)
+- [ ] Add explicit Skin Check consent and privacy copy explaining camera/gallery access, image processing, whether images are stored, and that predictions are screening support only
+- [ ] Avoid uploading or retaining baby skin images unless needed for the selected inference architecture and covered by clear consent/data-retention rules
 - [ ] Implement data access controls aligned with role-based permissions (parent vs. health professional)
 - [ ] Conduct a data-privacy review pass before pilot deployment
 
@@ -122,6 +148,7 @@ npx expo install @react-native-community/datetimepicker
 - [ ] Test all screens in Expo Go on both iOS and Android devices/simulators
 - [ ] Verify safe-area handling (`react-native-safe-area-context`) across notch/punch-hole devices
 - [ ] Verify haptics, date picker, and image picker behave correctly on both platforms
+- [ ] Verify camera permissions, live capture, gallery upload, image preview, retake, and re-upload behavior on both platforms
 - [ ] Run accessibility check (text scaling, reduced motion, tap target sizes) on both platforms
 
 ---
@@ -130,5 +157,6 @@ npx expo install @react-native-community/datetimepicker
 - [ ] Full UI consistency audit against theme tokens (colors, fonts, spacing, radius)
 - [ ] Animation consistency audit (reuse of fade/slide/scale patterns, no conflicting motion styles)
 - [ ] Reduced-motion fallback test across all animated components
+- [ ] Validate Skin Check result states: supported classes, confidence score display, below-30% fallback, retake/upload-another actions, disclaimer visibility, and healthcare-professional recommendation
 - [ ] Performance check on low-end Android devices (animation frame rate via Reanimated's UI thread execution)
 - [ ] Prepare build for pilot testing (Taguig City health centers) via Expo Go / EAS preview build

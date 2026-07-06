@@ -15,6 +15,7 @@ import type { CommunityScreenProps } from '../../navigation/types';
 import { logEvent } from '../../lib/analytics';
 import { useNetworkStore } from '../../lib/networkStore';
 import { enqueueAction } from '../../lib/offlineQueue';
+import { api } from '../../lib/api';
 
 const CATEGORIES = [
   { id: 'general', label: 'General' },
@@ -61,7 +62,7 @@ export function CreatePostScreen({ navigation }: CommunityScreenProps<'CreatePos
     return valid;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return;
 
     setIsSubmitting(true);
@@ -81,15 +82,22 @@ export function CreatePostScreen({ navigation }: CommunityScreenProps<'CreatePos
       return;
     }
 
-    // Simulate submission
-    setTimeout(() => {
+    try {
+      await api.post('/posts/', {
+        title: title.trim(),
+        body: body.trim(),
+        category,
+      });
       setIsSubmitting(false);
       Alert.alert(
         'Post Submitted',
         'Your post has been submitted and will be reviewed by our moderation team. Thank you for contributing to the BabyGuide community!',
         [{ text: 'OK', onPress: () => navigation.goBack() }],
       );
-    }, 800);
+    } catch (err: any) {
+      setIsSubmitting(false);
+      Alert.alert('Error', err.message || 'Failed to submit post. Please try again.');
+    }
   };
 
   return (

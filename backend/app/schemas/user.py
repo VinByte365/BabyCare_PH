@@ -10,7 +10,7 @@ class UserBase(BaseModel):
     email: EmailStr
     first_name: str = Field(..., min_length=1)
     last_name: str = Field(..., min_length=1)
-    role: str = Field(default="parent", pattern="^(parent|professional)$")
+    role: str = Field(default="parent", pattern="^(parent|professional|moderator)$")
 
 class UserCreate(UserBase):
     password: str = Field(..., min_length=6)
@@ -20,6 +20,7 @@ class UserUpdate(BaseModel):
     last_name: Optional[str] = None
     email: Optional[EmailStr] = None
     password: Optional[str] = None
+    avatar_url: Optional[str] = None
 
 class UserInDBBase(UserBase):
     id: str

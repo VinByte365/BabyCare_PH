@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -28,6 +28,11 @@ export function ProfileOverviewScreen({ navigation }: any) {
   const babies = useAuthStore((s) => s.babies);
   const updateUser = useAuthStore((s) => s.updateUser);
   const logout = useAuthStore((s) => s.logout);
+  const fetchBabies = useAuthStore((s) => s.fetchBabies);
+
+  useEffect(() => {
+    fetchBabies();
+  }, []);
 
   const handleLogout = () => {
     Alert.alert(

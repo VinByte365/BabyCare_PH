@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { Button, Card } from '../../components';
 import { useAuthStore } from '../../stores/authStore';
+import { api } from '../../lib/api';
 import type { AuthScreenProps } from '../../navigation/types';
 
 export function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
@@ -25,6 +26,7 @@ export function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
   const [loading, setLoading] = useState(false);
   const setTokens = useAuthStore((s) => s.setTokens);
   const setUser = useAuthStore((s) => s.setUser);
+  const loadUserProfile = useAuthStore((s) => s.loadUserProfile);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -33,16 +35,28 @@ export function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
     }
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setUser({
-        id: '1',
-        email: email.toLowerCase(),
-        firstName: 'Melvin',
-        lastName: 'Catuera',
-        role: 'parent',
-      });
-      await setTokens('dummy_access_token', 'dummy_refresh_token');
-      navigation.getParent()?.navigate('Main');
+      const formData = new URLSearchParams();
+      formData.append('username', email.toLowerCase().trim());
+      formData.append('password', password);
+
+      const tokenRes = await fetch(
+        `${__DEV__ ? 'http://10.0.2.2:8000/api/v1' : 'https://api.babyguide.ph/api/v1'}/auth/login`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formData.toString(),
+        }
+      );
+
+      if (!tokenRes.ok) {
+        const err = await tokenRes.json().catch(() => ({}));
+        throw new Error((err as any).detail || 'Invalid email or password');
+      }
+
+      const { access_token, refresh_token } = await tokenRes.json();
+      await setTokens(access_token, refresh_token);
+
+      await loadUserProfile();
     } catch (err: any) {
       Alert.alert('Login Failed', err.message || 'Something went wrong.');
     } finally {

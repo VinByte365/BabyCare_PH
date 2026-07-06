@@ -5,6 +5,7 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +14,7 @@ import { Card, Button } from '../../components';
 import { AvatarPicker } from '../../components/AvatarPicker';
 import { Toast } from '../../components/Toast';
 import { useAuthStore } from '../../stores/authStore';
+import { api } from '../../lib/api';
 import type { ProfileScreenProps } from '../../navigation/types';
 
 export function ParentProfileScreen({ navigation }: any) {
@@ -20,21 +22,35 @@ export function ParentProfileScreen({ navigation }: any) {
   const { colors, spacing, radii } = theme;
   const user = useAuthStore((s) => s.user);
   const updateUser = useAuthStore((s) => s.updateUser);
+  const loadUserProfile = useAuthStore((s) => s.loadUserProfile);
 
   const [firstName, setFirstName] = useState(user?.firstName || '');
   const [lastName, setLastName] = useState(user?.lastName || '');
   const [email, setEmail] = useState(user?.email || '');
   const [avatarUri, setAvatarUri] = useState(user?.avatarUrl || '');
   const [toastVisible, setToastVisible] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const handleSave = () => {
-    updateUser({
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      email: email.trim().toLowerCase(),
-      avatarUrl: avatarUri || undefined,
-    });
-    setToastVisible(true);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await api.put('/auth/me', {
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        email: email.trim().toLowerCase(),
+      });
+      updateUser({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim().toLowerCase(),
+        avatarUrl: avatarUri || undefined,
+      });
+      setToastVisible(true);
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'Failed to update profile.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -106,7 +122,7 @@ export function ParentProfileScreen({ navigation }: any) {
             />
           </View>
 
-          <Button title="Save Changes" onPress={handleSave} fullWidth />
+          <Button title="Save Changes" onPress={handleSave} loading={saving} fullWidth />
         </Card>
       </ScrollView>
 

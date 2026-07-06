@@ -16,10 +16,7 @@ import {
   getSymptomsByIds,
 } from '../../lib/symptomEngine';
 import type { AssessmentResult, SeverityLevel } from '../../lib/symptomEngine';
-
-const MOCK_SELECTED_SYMPTOMS = [
-  'fever_high', 'cough', 'difficult_breathing', 'poor_feeding',
-];
+import { api } from '../../lib/api';
 
 const severityConfig: Record<SeverityLevel, { label: string; color: string; icon: keyof typeof Ionicons.glyphMap }> = {
   emergency: { label: 'EMERGENCY', color: '#eb8e90', icon: 'alert-circle' },
@@ -115,20 +112,35 @@ function ResultCard({ result, index }: { result: AssessmentResult; index: number
 export function CheckerResultScreen({ navigation, route }: CheckerScreenProps<'CheckerResult'>) {
   const { theme } = useTheme();
   const { colors, spacing } = theme;
-  const { sessionId } = route.params;
+  const { sessionId, symptomIds } = route.params;
 
   const [results, setResults] = useState<AssessmentResult[]>([]);
   const [isEmergency, setIsEmergency] = useState(false);
   const slideAnim = useRef(new Animated.Value(40)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
+  const selectedIds = symptomIds || [];
+
   useEffect(() => {
-    const { results: r, isEmergency: e } = assessSymptoms(MOCK_SELECTED_SYMPTOMS);
+    const { results: r, isEmergency: e } = assessSymptoms(selectedIds);
     setResults(r);
     setIsEmergency(e);
 
+    const highestSeverity = r.length > 0
+      ? r.reduce((highest, cur) => {
+          const order: Record<SeverityLevel, number> = { emergency: 0, urgent: 1, moderate: 2, low: 3 };
+          return order[cur.severity] < order[highest] ? cur.severity : highest;
+        }, r[0].severity)
+      : 'low';
+
+    api.post('/symptom-check/', {
+      selected_symptom_ids: selectedIds,
+      matched_disease_ids: r.map((res) => res.diseaseId),
+      is_emergency: e,
+      highest_severity: highestSeverity,
+    }).catch(() => {});
+
     if (e) {
-      // Auto-show emergency alert after a brief delay
       const timer = setTimeout(() => {
         navigation.getParent()?.getParent()?.navigate('HomeTab', { screen: 'EmergencyAlert' });
       }, 3000);
@@ -152,7 +164,6 @@ export function CheckerResultScreen({ navigation, route }: CheckerScreenProps<'C
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl }} showsVerticalScrollIndicator={false}>
-        {/* Emergency Banner */}
         {isEmergency && (
           <View style={{ backgroundColor: colors.danger + '15', borderBottomWidth: 1, borderBottomColor: colors.danger + '30', paddingHorizontal: spacing.base, paddingVertical: spacing.md }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -191,18 +202,20 @@ export function CheckerResultScreen({ navigation, route }: CheckerScreenProps<'C
         </View>
 
         {/* Selected Symptoms Summary */}
-        <View style={{ paddingHorizontal: spacing.base, marginBottom: spacing.md }}>
-          <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 11, letterSpacing: 0.88, textTransform: 'uppercase', color: colors.textTertiary, marginBottom: spacing.xs }}>
-            Selected Symptoms
-          </Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-            {getSymptomsByIds(MOCK_SELECTED_SYMPTOMS).map((s) => (
-              <View key={s.id} style={{ paddingVertical: 4, paddingHorizontal: 10, borderRadius: 9999, backgroundColor: colors.surfaceStrong, marginRight: spacing.xs, marginBottom: spacing.xs }}>
-                <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 12, color: colors.textSecondary }}>{s.label}</Text>
-              </View>
-            ))}
+        {selectedIds.length > 0 && (
+          <View style={{ paddingHorizontal: spacing.base, marginBottom: spacing.md }}>
+            <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 11, letterSpacing: 0.88, textTransform: 'uppercase', color: colors.textTertiary, marginBottom: spacing.xs }}>
+              Selected Symptoms
+            </Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+              {getSymptomsByIds(selectedIds).map((s) => (
+                <View key={s.id} style={{ paddingVertical: 4, paddingHorizontal: 10, borderRadius: 9999, backgroundColor: colors.surfaceStrong, marginRight: spacing.xs, marginBottom: spacing.xs }}>
+                  <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 12, color: colors.textSecondary }}>{s.label}</Text>
+                </View>
+              ))}
+            </View>
           </View>
-        </View>
+        )}
 
         {/* Results List */}
         <View style={{ paddingHorizontal: spacing.base }}>

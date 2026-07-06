@@ -19,6 +19,7 @@ import {
   getCategoryDisplayName,
 } from '../../lib/diseaseLibrary';
 import type { DiseaseCategory } from '../../lib/diseaseLibrary';
+import { useBookmarkStore } from '../../lib/bookmarkStore';
 
 const severityOrder: Record<string, number> = {
   emergency: 0,
@@ -43,6 +44,8 @@ function DiseaseListItem({
 }) {
   const { theme } = useTheme();
   const { colors, spacing, radii } = theme;
+  const isBookmarked = useBookmarkStore((s) => s.isBookmarked(item.id));
+  const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
 
   return (
     <Card onPress={onPress} style={{ marginBottom: spacing.sm }}>
@@ -85,6 +88,17 @@ function DiseaseListItem({
             >
               {item.name}
             </Text>
+            <TouchableOpacity
+              onPress={() => toggleBookmark({ id: item.id, type: 'disease', title: item.name })}
+              style={{ marginRight: spacing.xs, padding: 4 }}
+              hitSlop={8}
+            >
+              <Ionicons
+                name={isBookmarked ? 'bookmark' : 'bookmark-outline'}
+                size={18}
+                color={isBookmarked ? colors.primary : colors.textTertiary}
+              />
+            </TouchableOpacity>
             <Badge
               label={item.severity}
               variant={

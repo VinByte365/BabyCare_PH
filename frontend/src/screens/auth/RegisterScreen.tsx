@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { Button, Card, Chip } from '../../components';
 import { useAuthStore } from '../../stores/authStore';
+import { api } from '../../lib/api';
 import type { AuthScreenProps } from '../../navigation/types';
 
 export function RegisterScreen({ navigation }: AuthScreenProps<'Register'>) {
@@ -29,6 +30,7 @@ export function RegisterScreen({ navigation }: AuthScreenProps<'Register'>) {
   const [loading, setLoading] = useState(false);
   const setTokens = useAuthStore((s) => s.setTokens);
   const setUser = useAuthStore((s) => s.setUser);
+  const loadUserProfile = useAuthStore((s) => s.loadUserProfile);
 
   const handleRegister = async () => {
     if (!firstName || !lastName || !email || !password) {
@@ -41,10 +43,34 @@ export function RegisterScreen({ navigation }: AuthScreenProps<'Register'>) {
     }
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setUser({ id: '1', email: email.toLowerCase(), firstName, lastName, role });
-      await setTokens('dummy_access_token', 'dummy_refresh_token');
-      navigation.getParent()?.navigate('Main');
+      await api.post('/auth/register', {
+        email: email.toLowerCase().trim(),
+        password,
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        role,
+      });
+
+      const formData = new URLSearchParams();
+      formData.append('username', email.toLowerCase().trim());
+      formData.append('password', password);
+
+      const tokenRes = await fetch(
+        `${__DEV__ ? 'http://10.0.2.2:8000/api/v1' : 'https://api.babyguide.ph/api/v1'}/auth/login`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formData.toString(),
+        }
+      );
+
+      if (!tokenRes.ok) {
+        throw new Error('Registration succeeded but login failed. Please log in manually.');
+      }
+
+      const { access_token, refresh_token } = await tokenRes.json();
+      await setTokens(access_token, refresh_token);
+      await loadUserProfile();
     } catch (err: any) {
       Alert.alert('Registration Failed', err.message || 'Something went wrong.');
     } finally {

@@ -6,6 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,11 +17,8 @@ import { Card, Button, Chip } from '../../components';
 import { AvatarPicker } from '../../components/AvatarPicker';
 import { Toast } from '../../components/Toast';
 import { useAuthStore } from '../../stores/authStore';
+import { api } from '../../lib/api';
 import type { ProfileScreenProps } from '../../navigation/types';
-
-function generateId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-}
 
 export function BabyProfileScreen({ navigation, route }: any) {
   const { theme } = useTheme();
@@ -28,6 +27,7 @@ export function BabyProfileScreen({ navigation, route }: any) {
   const addBaby = useAuthStore((s) => s.addBaby);
   const updateBaby = useAuthStore((s) => s.updateBaby);
   const removeBaby = useAuthStore((s) => s.removeBaby);
+  const fetchBabies = useAuthStore((s) => s.fetchBabies);
 
   const babyId = route?.params?.babyId;
   const existingBaby = babyId ? babies.find((b) => b.id === babyId) : null;
@@ -42,6 +42,7 @@ export function BabyProfileScreen({ navigation, route }: any) {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const handleDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === 'ios');
@@ -50,7 +51,7 @@ export function BabyProfileScreen({ navigation, route }: any) {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name.trim()) {
       setToastMessage('Please enter the baby\'s name');
       setToastVisible(true);
@@ -58,33 +59,56 @@ export function BabyProfileScreen({ navigation, route }: any) {
     }
 
     const formattedDate = dateOfBirth.toISOString().split('T')[0];
-    const avatar = avatarUri || undefined;
+    setSaving(true);
 
-    if (isEditing) {
-      updateBaby(babyId, {
-        name: name.trim(),
-        sex,
-        dateOfBirth: formattedDate,
-        avatarUrl: avatar,
-      });
-      setToastMessage('Baby profile updated');
-    } else {
-      addBaby({
-        id: generateId(),
-        name: name.trim(),
-        sex,
-        dateOfBirth: formattedDate,
-        avatarUrl: avatar,
-      });
-      setToastMessage('Baby profile added');
+    try {
+      if (isEditing) {
+        await api.put(`/babies/${babyId}`, {
+          name: name.trim(),
+          sex,
+          date_of_birth: formattedDate,
+        });
+        updateBaby(babyId, {
+          name: name.trim(),
+          sex,
+          dateOfBirth: formattedDate,
+          avatarUrl: avatarUri || undefined,
+        });
+        setToastMessage('Baby profile updated');
+      } else {
+        const created = await api.post<{ id: string }>('/babies/', {
+          name: name.trim(),
+          sex,
+          date_of_birth: formattedDate,
+        });
+        addBaby({
+          id: created.id,
+          name: name.trim(),
+          sex,
+          dateOfBirth: formattedDate,
+          avatarUrl: avatarUri || undefined,
+        });
+        setToastMessage('Baby profile added');
+      }
+      setToastVisible(true);
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'Failed to save baby profile.');
+    } finally {
+      setSaving(false);
     }
-    setToastVisible(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!isEditing) return;
-    removeBaby(babyId);
-    navigation.goBack();
+    setSaving(true);
+    try {
+      await api.delete(`/babies/${babyId}`);
+      removeBaby(babyId);
+      navigation.goBack();
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'Failed to delete baby profile.');
+      setSaving(false);
+    }
   };
 
   return (
@@ -97,6 +121,7 @@ export function BabyProfileScreen({ navigation, route }: any) {
         <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 18, lineHeight: 25, color: colors.textPrimary, flex: 1, marginLeft: 4 }}>
           {isEditing ? 'Edit Baby' : 'Add Baby'}
         </Text>
+        {saving && <ActivityIndicator size="small" color={colors.primary} />}
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: spacing.base, paddingBottom: spacing.xxl }} showsVerticalScrollIndicator={false}>
@@ -171,7 +196,12 @@ export function BabyProfileScreen({ navigation, route }: any) {
             />
           )}
 
-          <Button title={isEditing ? 'Save Changes' : 'Add Baby'} onPress={handleSave} fullWidth />
+          <Button
+            title={isEditing ? 'Save Changes' : 'Add Baby'}
+            onPress={handleSave}
+            loading={saving}
+            fullWidth
+          />
 
           {isEditing && (
             <Button
@@ -179,6 +209,7 @@ export function BabyProfileScreen({ navigation, route }: any) {
               onPress={handleDelete}
               variant="danger"
               fullWidth
+              loading={saving}
               style={{ marginTop: spacing.sm }}
             />
           )}
