@@ -26,9 +26,7 @@ import { DiseaseDetailScreen } from '../screens/library/DiseaseDetailScreen';
 import { CommunityFeedScreen } from '../screens/community/CommunityFeedScreen';
 import { CommunityPostScreen } from '../screens/community/CommunityPostScreen';
 import { CreatePostScreen } from '../screens/community/CreatePostScreen';
-import {
-  NotificationsScreen,
-} from '../screens/placeholders/PlaceholderScreens';
+import { NotificationsScreen } from '../screens/home/NotificationsScreen';
 
 import { CheckerIntroScreen } from '../screens/checker/CheckerIntroScreen';
 import { CheckerQuestionsScreen } from '../screens/checker/CheckerQuestionsScreen';

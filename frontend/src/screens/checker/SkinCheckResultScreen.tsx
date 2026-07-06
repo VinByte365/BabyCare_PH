@@ -12,6 +12,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { Card, Button, Badge } from '../../components';
 import type { CheckerScreenProps } from '../../navigation/types';
+import { api } from '../../lib/api';
+import { useNotificationStore } from '../../stores/notificationStore';
 
 const severityColorMap: Record<string, string> = {
   emergency: '#eb8e90',
@@ -40,6 +42,21 @@ export function SkinCheckResultScreen({ navigation, route }: CheckerScreenProps<
       Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
       Animated.timing(slideAnim, { toValue: 0, duration: 500, useNativeDriver: true }),
     ]).start();
+
+    const fetchUnread = useNotificationStore.getState().fetchUnreadCount;
+    const sessionId = route.params.sessionId;
+    const title = predicted
+      ? (detectedClass === 'Normal Skin' ? 'Skin Check — No Concerns' : `Skin Check — ${detectedClass}`)
+      : 'Skin Check Inconclusive';
+    const body = predicted
+      ? (confidence !== undefined ? `Confidence: ${(confidence * 100).toFixed(1)}%. ${detectedClass === 'Normal Skin' ? 'No skin concerns detected.' : 'Review the results for next steps.'}` : 'Review the results for next steps.')
+      : (message || 'Unable to detect the skin condition. Try again with a clearer image.');
+    api.post('/notifications/', {
+      type: 'skin_check',
+      title,
+      body,
+      related_id: sessionId || null,
+    }).then(() => fetchUnread()).catch(() => {});
   }, []);
 
   const handleBackToChecker = () => {
@@ -47,7 +64,7 @@ export function SkinCheckResultScreen({ navigation, route }: CheckerScreenProps<
   };
 
   const handleBackToHome = () => {
-    navigation.getParent()?.getParent()?.navigate('HomeTab');
+    navigation.getParent()?.navigate('HomeTab');
   };
 
   const renderIcon = () => {

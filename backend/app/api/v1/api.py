@@ -3,7 +3,7 @@
 """
 
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, babies, analytics, skin_check, symptom_check, history, bookmarks, community, medical_history, vaccination
+from app.api.v1.endpoints import auth, babies, analytics, skin_check, symptom_check, history, bookmarks, community, medical_history, vaccination, notifications
 
 api_router = APIRouter()
 
@@ -17,3 +17,4 @@ api_router.include_router(history.router, prefix="/history", tags=["history"])
 api_router.include_router(community.router, prefix="/posts", tags=["community"])
 api_router.include_router(medical_history.router, prefix="/medical-history", tags=["medical history"])
 api_router.include_router(vaccination.router, prefix="/vaccinations", tags=["vaccinations"])
+api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])

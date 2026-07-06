@@ -10,3 +10,4 @@ from app.models.community import CommunityPost, CommunityComment, PostLike
 from app.models.refresh_token import RefreshToken
 from app.models.medical_history import MedicalHistory
 from app.models.vaccination import Vaccination
+from app.models.notification import Notification

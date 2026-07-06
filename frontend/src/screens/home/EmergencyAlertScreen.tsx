@@ -145,7 +145,7 @@ export function EmergencyAlertScreen({ navigation, route }: HomeScreenProps<'Eme
 
         <Button
           title="Back to Home"
-          onPress={() => navigation.getParent()?.getParent()?.navigate('HomeTab')}
+          onPress={() => navigation.navigate('Home')}
           variant="tertiary"
           fullWidth
           icon={<Ionicons name="home-outline" size={18} color="rgba(255,255,255,0.7)" />}

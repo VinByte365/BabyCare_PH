@@ -17,6 +17,7 @@ import {
 } from '../../lib/symptomEngine';
 import type { AssessmentResult, SeverityLevel } from '../../lib/symptomEngine';
 import { api } from '../../lib/api';
+import { useNotificationStore } from '../../stores/notificationStore';
 
 const severityConfig: Record<SeverityLevel, { label: string; color: string; icon: keyof typeof Ionicons.glyphMap }> = {
   emergency: { label: 'EMERGENCY', color: '#eb8e90', icon: 'alert-circle' },
@@ -140,9 +141,24 @@ export function CheckerResultScreen({ navigation, route }: CheckerScreenProps<'C
       highest_severity: highestSeverity,
     }).catch(() => {});
 
+    const fetchUnread = useNotificationStore.getState().fetchUnreadCount;
+    const diseaseNames = r.map((res) => res.diseaseName).join(', ');
+    const title = e ? 'Urgent: Symptom Check Complete' : 'Symptom Check Complete';
+    const body = e
+      ? `Emergency signs detected: ${diseaseNames}`
+      : r.length > 0
+        ? `Found ${r.length} possible match${r.length > 1 ? 'es' : ''}: ${diseaseNames}`
+        : 'No matching conditions found for the selected symptoms.';
+    api.post('/notifications/', {
+      type: e ? 'emergency' : 'symptom_check',
+      title,
+      body,
+      related_id: sessionId,
+    }).then(() => fetchUnread()).catch(() => {});
+
     if (e) {
       const timer = setTimeout(() => {
-        navigation.getParent()?.getParent()?.navigate('HomeTab', { screen: 'EmergencyAlert' });
+        navigation.getParent()?.navigate('HomeTab', { screen: 'EmergencyAlert' });
       }, 3000);
       return () => clearTimeout(timer);
     }

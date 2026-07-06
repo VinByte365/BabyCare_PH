@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../../theme';
 import { Card, Badge } from '../../components';
 import type { HomeScreenProps, MainTabParamList } from '../../navigation/types';
+import { useNotificationStore } from '../../stores/notificationStore';
 
 const quickActions = [
   { id: 'checker', label: 'Symptom Checker', icon: 'medkit-outline' as const },
@@ -38,6 +39,12 @@ export function HomeScreen({ navigation }: HomeScreenProps<'Home'>) {
   const { theme } = useTheme();
   const { colors, spacing, radii } = theme;
   const tabNavigation = navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
+  const unreadCount = useNotificationStore((s) => s.unreadCount);
+  const fetchUnreadCount = useNotificationStore((s) => s.fetchUnreadCount);
+
+  useEffect(() => {
+    fetchUnreadCount();
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
@@ -56,7 +63,10 @@ export function HomeScreen({ navigation }: HomeScreenProps<'Home'>) {
             </Text>
           </View>
           <Card
-            onPress={() => navigation.navigate('Notifications')}
+            onPress={() => {
+              navigation.navigate('Notifications');
+              fetchUnreadCount();
+            }}
             noPadding
             style={{
               width: 44,
@@ -67,6 +77,33 @@ export function HomeScreen({ navigation }: HomeScreenProps<'Home'>) {
             }}
           >
             <Ionicons name="notifications-outline" size={22} color={colors.icon} />
+            {unreadCount > 0 && (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: -2,
+                  right: -2,
+                  minWidth: 18,
+                  height: 18,
+                  borderRadius: 9,
+                  backgroundColor: colors.danger,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingHorizontal: 4,
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: 'Inter_600SemiBold',
+                    fontSize: 10,
+                    color: '#fff',
+                    lineHeight: 14,
+                  }}
+                >
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </Text>
+              </View>
+            )}
           </Card>
         </View>
 
