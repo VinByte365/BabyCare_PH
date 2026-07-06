@@ -42,6 +42,8 @@ import { ProfileOverviewScreen } from '../screens/profile/ProfileOverviewScreen'
 import { ParentProfileScreen } from '../screens/profile/ParentProfileScreen';
 import { BabyProfileScreen } from '../screens/profile/BabyProfileScreen';
 import { ProfileHistoryScreen } from '../screens/profile/ProfileHistoryScreen';
+import { MedicalHistoryScreen } from '../screens/profile/MedicalHistoryScreen';
+import { VaccinationRecordScreen } from '../screens/profile/VaccinationRecordScreen';
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 const CheckerStack = createNativeStackNavigator<CheckerStackParamList>();
@@ -103,8 +105,8 @@ function ProfileStackNavigator() {
       <ProfileStack.Screen name="ParentProfile" component={ParentProfileScreen} />
       <ProfileStack.Screen name="BabyProfile" component={BabyProfileScreen} />
       <ProfileStack.Screen name="ProfileHistory" component={ProfileHistoryScreen} />
-      <ProfileStack.Screen name="MedicalHistory" component={NotificationsScreen} />
-      <ProfileStack.Screen name="VaccinationRecord" component={NotificationsScreen} />
+      <ProfileStack.Screen name="MedicalHistory" component={MedicalHistoryScreen} />
+      <ProfileStack.Screen name="VaccinationRecord" component={VaccinationRecordScreen} />
       <ProfileStack.Screen name="GrowthTracking" component={NotificationsScreen} />
       <ProfileStack.Screen name="Settings" component={NotificationsScreen} />
     </ProfileStack.Navigator>
