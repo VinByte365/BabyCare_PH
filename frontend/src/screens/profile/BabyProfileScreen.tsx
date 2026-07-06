@@ -5,20 +5,55 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
-  Platform,
   Alert,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTheme } from '../../theme';
 import { Card, Button, Chip } from '../../components';
 import { AvatarPicker } from '../../components/AvatarPicker';
 import { Toast } from '../../components/Toast';
 import { useAuthStore } from '../../stores/authStore';
 import { api } from '../../lib/api';
-import type { ProfileScreenProps } from '../../navigation/types';
+
+const formatDateInput = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const parseDateInput = (value: string) => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (!match) return null;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(year, month - 1, day);
+
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return date;
+};
+
+const formatDisplayDate = (value: string) => {
+  const date = parseDateInput(value);
+  if (!date) return 'Enter date as YYYY-MM-DD';
+
+  return date.toLocaleDateString('en-PH', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
 
 export function BabyProfileScreen({ navigation, route }: any) {
   const { theme } = useTheme();
@@ -35,20 +70,17 @@ export function BabyProfileScreen({ navigation, route }: any) {
 
   const [name, setName] = useState(existingBaby?.name || '');
   const [sex, setSex] = useState<'male' | 'female'>(existingBaby?.sex || 'male');
-  const [dateOfBirth, setDateOfBirth] = useState(
-    existingBaby?.dateOfBirth ? new Date(existingBaby.dateOfBirth) : new Date()
+  const [dateOfBirthInput, setDateOfBirthInput] = useState(
+    existingBaby?.dateOfBirth || formatDateInput(new Date())
   );
   const [avatarUri, setAvatarUri] = useState(existingBaby?.avatarUrl || '');
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const handleDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
-    setShowDatePicker(Platform.OS === 'ios');
-    if (selectedDate) {
-      setDateOfBirth(selectedDate);
-    }
+  const handleDateInputChange = (value: string) => {
+    const cleaned = value.replace(/[^\d-]/g, '').slice(0, 10);
+    setDateOfBirthInput(cleaned);
   };
 
   const handleSave = async () => {
@@ -58,7 +90,22 @@ export function BabyProfileScreen({ navigation, route }: any) {
       return;
     }
 
-    const formattedDate = dateOfBirth.toISOString().split('T')[0];
+    const parsedDateOfBirth = parseDateInput(dateOfBirthInput);
+    if (!parsedDateOfBirth) {
+      setToastMessage('Please enter the date of birth as YYYY-MM-DD');
+      setToastVisible(true);
+      return;
+    }
+
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    if (parsedDateOfBirth > today) {
+      setToastMessage('Date of birth cannot be in the future');
+      setToastVisible(true);
+      return;
+    }
+
+    const formattedDate = formatDateInput(parsedDateOfBirth);
     setSaving(true);
 
     try {
@@ -175,26 +222,23 @@ export function BabyProfileScreen({ navigation, route }: any) {
           <Text style={{ fontFamily: 'Inter_600SemiBold', fontSize: 14, color: colors.textPrimary, marginBottom: spacing.xs }}>
             Date of Birth
           </Text>
-          <TouchableOpacity
-            onPress={() => setShowDatePicker(true)}
+          <View
             style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: colors.border, borderRadius: radii.md, backgroundColor: colors.backgroundSecondary, paddingHorizontal: 12, height: 44, marginBottom: spacing.lg }}
           >
             <Ionicons name="calendar-outline" size={20} color={colors.placeholder} style={{ marginRight: 8 }} />
-            <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 16, color: colors.textPrimary, flex: 1 }}>
-              {dateOfBirth.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })}
-            </Text>
-            <Ionicons name="chevron-down" size={16} color={colors.placeholder} />
-          </TouchableOpacity>
-
-          {showDatePicker && (
-            <DateTimePicker
-              value={dateOfBirth}
-              mode="date"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              onChange={handleDateChange}
-              maximumDate={new Date()}
+            <TextInput
+              value={dateOfBirthInput}
+              onChangeText={handleDateInputChange}
+              placeholder="YYYY-MM-DD"
+              placeholderTextColor={colors.placeholder}
+              keyboardType="number-pad"
+              maxLength={10}
+              style={{ flex: 1, height: '100%', fontSize: 16, color: colors.textPrimary, fontFamily: 'Inter_400Regular' }}
             />
-          )}
+          </View>
+          <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 13, lineHeight: 18, color: colors.textSecondary, marginTop: -spacing.md, marginBottom: spacing.lg }}>
+            {formatDisplayDate(dateOfBirthInput)}
+          </Text>
 
           <Button
             title={isEditing ? 'Save Changes' : 'Add Baby'}

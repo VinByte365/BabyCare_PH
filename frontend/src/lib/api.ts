@@ -8,8 +8,8 @@
 
 import { useAuthStore } from '../stores/authStore';
 
-const BASE_URL = __DEV__
-  ? 'http://10.0.2.2:8000/api/v1'
+export const BASE_URL = __DEV__
+  ? 'http://192.168.100.114:8000/api/v1'
   : 'https://api.babyguide.ph/api/v1';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
